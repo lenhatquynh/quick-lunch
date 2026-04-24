@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/lib/prisma-client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Menu {
+  id          String     @id @default(cuid())
+  date        DateTime   @db.Date
+  creatorName String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  isLocked    Boolean    @default(false)
+  items       MenuItem[]
+
+  @@index([date])
+}
+
+model MenuItem {
+  id         String      @id @default(cuid())
+  menuId     String
+  name       String
+  notes      String?
+  sortOrder  Int         @default(autoincrement())
+  menu       Menu        @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  selections Selection[]
+}
+
+model Selection {
+  id         String   @id @default(cuid())
+  menuItemId String
+  personName String
+  createdAt  DateTime @default(now())
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@index([menuItemId])
+}
