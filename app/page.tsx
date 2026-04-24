@@ -61,11 +61,13 @@ export default function HomePage() {
     showSnackbar('Cập nhật menu thành công!', 'success');
   };
 
-  const handleAddSelection = async (menuItemId: string, personName: string) => {
+  const handleAddSelection = async (menuItemId: string, personName: string, quantity: number = 1) => {
     setCurrentPersonName(personName);
     try {
-      await createSelection.mutateAsync({ menuItemId, personName });
-      showSnackbar('Đã thêm lựa chọn!', 'success');
+      for (let i = 0; i < quantity; i++) {
+        await createSelection.mutateAsync({ menuItemId, personName });
+      }
+      showSnackbar(`Đã thêm ${quantity} lựa chọn!`, 'success');
     } catch (err) {
       showSnackbar('Không thể thêm lựa chọn', 'error');
     }
@@ -122,7 +124,7 @@ export default function HomePage() {
 
   return (
     <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexDirection: { xs: 'column', sm: 'row' }, gap: 1 }}>
         <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
           🍱 Order
         </Typography>
@@ -139,6 +141,7 @@ export default function HomePage() {
             color="primary"
             startIcon={<AddIcon />}
             onClick={() => setCreateMenuOpen(true)}
+            disabled={!!menu && !menu.isLocked}
           >
             Tạo Menu Mới
           </Button>
