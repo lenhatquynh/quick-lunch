@@ -32,7 +32,7 @@ export default function Navbar() {
               transition: 'all 0.2s ease-in-out',
             }}
             >
-            Trang chủ
+            Order
           </Button>
           <Button
             component={Link}
@@ -52,7 +52,7 @@ export default function Navbar() {
               transition: 'all 0.2s ease-in-out',
             }}
           >
-            Lịch sử
+            History
           </Button>
         </Box>
       </Toolbar>
