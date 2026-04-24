@@ -161,6 +161,10 @@ const config = {
         "fromEnvVar": null,
         "value": "darwin-arm64",
         "native": true
+      },
+      {
+        "fromEnvVar": null,
+        "value": "rhel-openssl-3.0.x"
       }
     ],
     "previewFeatures": [],
@@ -178,6 +182,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -186,8 +191,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../app/lib/prisma-client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel Menu {\n  id          String     @id @default(cuid())\n  date        DateTime   @db.Date\n  creatorName String\n  createdAt   DateTime   @default(now())\n  updatedAt   DateTime   @updatedAt\n  isLocked    Boolean    @default(false)\n  items       MenuItem[]\n\n  @@index([date])\n}\n\nmodel MenuItem {\n  id         String      @id @default(cuid())\n  menuId     String\n  name       String\n  notes      String?\n  sortOrder  Int         @default(autoincrement())\n  menu       Menu        @relation(fields: [menuId], references: [id], onDelete: Cascade)\n  selections Selection[]\n}\n\nmodel Selection {\n  id         String   @id @default(cuid())\n  menuItemId String\n  personName String\n  createdAt  DateTime @default(now())\n  menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)\n\n  @@index([menuItemId])\n}\n",
-  "inlineSchemaHash": "b10e80236bd4bdb8153e87bb5380d3ba598ff7f58b9537dfd6e806fb974f35aa",
+  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  binaryTargets = [\"native\", \"rhel-openssl-3.0.x\"]\n  output        = \"../app/lib/prisma-client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel Menu {\n  id          String     @id @default(cuid())\n  date        DateTime   @db.Date\n  creatorName String\n  createdAt   DateTime   @default(now())\n  updatedAt   DateTime   @updatedAt\n  isLocked    Boolean    @default(false)\n  items       MenuItem[]\n\n  @@index([date])\n}\n\nmodel MenuItem {\n  id         String      @id @default(cuid())\n  menuId     String\n  name       String\n  notes      String?\n  sortOrder  Int         @default(autoincrement())\n  menu       Menu        @relation(fields: [menuId], references: [id], onDelete: Cascade)\n  selections Selection[]\n}\n\nmodel Selection {\n  id         String   @id @default(cuid())\n  menuItemId String\n  personName String\n  createdAt  DateTime @default(now())\n  menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)\n\n  @@index([menuItemId])\n}\n",
+  "inlineSchemaHash": "1ef784190b3b874213845ac6f049501e9091cea34865d4d46a0d818906209eba",
   "copyEngine": true
 }
 
@@ -228,6 +233,10 @@ Object.assign(exports, Prisma)
 // file annotations for bundling tools to include these files
 path.join(__dirname, "libquery_engine-darwin-arm64.dylib.node");
 path.join(process.cwd(), "app/lib/prisma-client/libquery_engine-darwin-arm64.dylib.node")
+
+// file annotations for bundling tools to include these files
+path.join(__dirname, "libquery_engine-rhel-openssl-3.0.x.so.node");
+path.join(process.cwd(), "app/lib/prisma-client/libquery_engine-rhel-openssl-3.0.x.so.node")
 // file annotations for bundling tools to include these files
 path.join(__dirname, "schema.prisma");
 path.join(process.cwd(), "app/lib/prisma-client/schema.prisma")
