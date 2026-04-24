@@ -273,7 +273,7 @@ function MenuForm({
         <Button
           variant="contained"
           onClick={handleSubmit}
-          disabled={!canSubmit}
+          disabled={!isEditMode && !canSubmit}
         >
           {isSubmitting ? "Đang xử lý..." : (isEditMode ? "Cập nhật Menu" : "Tạo Menu")}
         </Button>
