@@ -39,33 +39,53 @@ export default function SummaryCard({
   const itemSummary: SelectionSummary[] = useMemo(() => {
     return items
       .filter((item) => item.selections.length > 0)
-      .map((item) => ({
-        itemId: item.id,
-        itemName: item.name,
-        totalCount: item.selections.length,
-        notes: item.notes,
-        people: item.selections.map((s) => s.personName),
-      }))
+      .map((item) => {
+        const people = item.selections.map((s) => s.personName);
+        const groupedPeople = Array.from(
+          people.reduce((acc, name) => {
+            acc.set(name, (acc.get(name) || 0) + 1);
+            return acc;
+          }, new Map<string, number>())
+        ).map(([name, count]) => count > 1 ? `${name} x${count}` : name);
+
+        return {
+          itemId: item.id,
+          itemName: item.name,
+          totalCount: item.selections.length,
+          notes: item.notes,
+          people: groupedPeople,
+        };
+      })
       .sort((a, b) => b.totalCount - a.totalCount);
   }, [items]);
 
   const personSummary: PersonSummary[] = useMemo(() => {
-    const personMap = new Map<string, { itemName: string; notes: string | null }[]>();
+    const personMap = new Map<string, Map<string, { notes: string | null; count: number }>>();
 
     items.forEach((item) => {
       item.selections.forEach((selection) => {
-        const existing = personMap.get(selection.personName) || [];
-        existing.push({ itemName: item.name, notes: item.notes });
-        personMap.set(selection.personName, existing);
+        if (!personMap.has(selection.personName)) {
+          personMap.set(selection.personName, new Map());
+        }
+        const itemMap = personMap.get(selection.personName)!;
+        if (itemMap.has(item.name)) {
+          itemMap.get(item.name)!.count += 1;
+        } else {
+          itemMap.set(item.name, { notes: item.notes, count: 1 });
+        }
       });
     });
 
     return Array.from(personMap.entries())
-      .map(([personName, selections]) => ({
+      .map(([personName, itemMap]) => ({
         personName,
-        selections,
+        selections: Array.from(itemMap.entries()).map(([itemName, data]) => ({
+          itemName,
+          notes: data.notes,
+          count: data.count,
+        })),
       }))
-      .sort((a, b) => b.selections.length - a.selections.length);
+      .sort((a, b) => b.selections.reduce((acc, s) => acc + s.count, 0) - a.selections.reduce((acc, s) => acc + s.count, 0));
   }, [items]);
 
   const totalItems = itemSummary.reduce((acc, item) => acc + item.totalCount, 0);
@@ -83,7 +103,7 @@ export default function SummaryCard({
         .map(
           (person) =>
             `${person.personName}: ${person.selections
-              .map((s) => `1 ${s.itemName}${s.notes ? ` + ${s.notes}` : ''}`)
+              .map((s) => `${s.count} ${s.itemName}${s.notes ? ` + ${s.notes}` : ''}`)
               .join(', ')}`
         )
         .join('\n');
@@ -178,7 +198,7 @@ export default function SummaryCard({
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   {person.selections
-                    .map((s) => `1 ${s.itemName}${s.notes ? ` + ${s.notes}` : ''}`)
+                    .map((s) => `${s.count} ${s.itemName}${s.notes ? ` + ${s.notes}` : ''}`)
                     .join(', ')}
                 </Typography>
               </Box>

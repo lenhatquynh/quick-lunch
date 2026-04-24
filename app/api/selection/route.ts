@@ -4,7 +4,7 @@ import { prisma } from '../../lib/prisma';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { menuItemId, personName } = body;
+    const { menuItemId, personName, quantity = 1 } = body;
 
     if (!menuItemId || !personName) {
       return NextResponse.json(
@@ -31,12 +31,16 @@ export async function POST(request: Request) {
       );
     }
 
-    const selection = await prisma.selection.create({
-      data: {
-        menuItemId,
-        personName,
-      },
-    });
+    const selections = await Promise.all(
+      Array.from({ length: quantity }, () =>
+        prisma.selection.create({
+          data: {
+            menuItemId,
+            personName,
+          },
+        })
+      )
+    );
 
     const updatedItem = await prisma.menuItem.findUnique({
       where: { id: menuItemId },
@@ -45,7 +49,7 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json({ selection, menuItem: updatedItem }, { status: 201 });
+    return NextResponse.json({ selections, menuItem: updatedItem }, { status: 201 });
   } catch (error) {
     console.error('Error creating selection:', error);
     return NextResponse.json({ error: 'Failed to create selection' }, { status: 500 });

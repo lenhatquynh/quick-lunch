@@ -10,8 +10,6 @@ import {
   TextField,
   Box,
   Typography,
-  Chip,
-  IconButton,
   Autocomplete,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -22,7 +20,7 @@ interface SelectItemDialogProps {
   open: boolean;
   onClose: () => void;
   items: MenuItemWithSelections[];
-  onSelect: (menuItemId: string, personName: string) => Promise<void>;
+  onSelect: (menuItemId: string, personName: string, quantity: number) => Promise<void>;
   existingNames: string[];
 }
 
@@ -34,17 +32,28 @@ export default function SelectItemDialog({
   existingNames,
 }: SelectItemDialogProps) {
   const [personName, setPersonName] = useState('');
-  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [selectedItems, setSelectedItems] = useState<Map<string, number>>(new Map());
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleToggleItem = (itemId: string) => {
-    const newSelected = new Set(selectedItems);
-    if (newSelected.has(itemId)) {
-      newSelected.delete(itemId);
-    } else {
-      newSelected.add(itemId);
-    }
-    setSelectedItems(newSelected);
+  const handleAddItem = (itemId: string) => {
+    setSelectedItems((prev) => {
+      const newMap = new Map(prev);
+      newMap.set(itemId, (newMap.get(itemId) || 0) + 1);
+      return newMap;
+    });
+  };
+
+  const handleRemoveItem = (itemId: string) => {
+    setSelectedItems((prev) => {
+      const newMap = new Map(prev);
+      const current = newMap.get(itemId) || 1;
+      if (current > 1) {
+        newMap.set(itemId, current - 1);
+      } else {
+        newMap.delete(itemId);
+      }
+      return newMap;
+    });
   };
 
   const handleSubmit = async () => {
@@ -53,8 +62,8 @@ export default function SelectItemDialog({
 
     setIsSubmitting(true);
     try {
-      for (const itemId of selectedItems) {
-        await onSelect(itemId, personName.trim());
+      for (const [itemId, quantity] of selectedItems) {
+        await onSelect(itemId, personName.trim(), quantity);
       }
       handleClose();
     } finally {
@@ -64,9 +73,11 @@ export default function SelectItemDialog({
 
   const handleClose = () => {
     setPersonName('');
-    setSelectedItems(new Set());
+    setSelectedItems(new Map());
     onClose();
   };
+
+  const totalQuantity = Array.from(selectedItems.values()).reduce((a, b) => a + b, 0);
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
@@ -87,59 +98,83 @@ export default function SelectItemDialog({
             )}
           />
 
-          <Typography variant="subtitle1">Chọn món:</Typography>
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+          <Typography variant="subtitle1">Chọn món (nhấn + / - để tăng/giảm số lượng):</Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             {items.map((item) => {
-              const isSelected = selectedItems.has(item.id);
+              const quantity = selectedItems.get(item.id) || 0;
               const hasAlreadySelected = item.selections.some(
                 (s) => s.personName.toLowerCase() === personName.toLowerCase()
               );
 
               return (
-                <Chip
+                <Box
                   key={item.id}
-                  label={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <span>{item.name}</span>
-                      {item.notes && (
-                        <Typography component="span" variant="caption" sx={{ opacity: 0.7 }}>
-                          + {item.notes}
-                        </Typography>
-                      )}
-                      {item.selections.length > 0 && (
-                        <Typography component="span" variant="caption" sx={{ ml: 0.5 }}>
-                          ({item.selections.length})
-                        </Typography>
-                      )}
-                    </Box>
-                  }
-                  onClick={() => handleToggleItem(item.id)}
-                  color={isSelected ? 'primary' : 'default'}
-                  variant={isSelected ? 'filled' : 'outlined'}
-                  icon={
-                    isSelected ? (
-                      <RemoveIcon />
-                    ) : (
-                      <AddIcon />
-                    )
-                  }
-                  onDelete={isSelected ? () => {} : undefined}
-                  deleteIcon={isSelected ? <RemoveIcon /> : undefined}
                   sx={{
-                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    p: 1,
+                    border: '1px solid',
+                    borderColor: quantity > 0 ? 'primary.main' : 'divider',
+                    borderRadius: 1,
                     opacity: hasAlreadySelected ? 0.6 : 1,
+                    bgcolor: quantity > 0 ? 'action.selected' : 'transparent',
                   }}
-                />
+                >
+                  <Box sx={{ flex: 1 }}>
+                    <Typography variant="body1" sx={{ fontWeight: quantity > 0 ? 600 : 400 }}>
+                      {item.name}
+                    </Typography>
+                    {item.notes && (
+                      <Typography variant="caption" color="text.secondary">
+                        + {item.notes}
+                      </Typography>
+                    )}
+                    {item.selections.length > 0 && (
+                      <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+                        ({item.selections.length} đã chọn)
+                      </Typography>
+                    )}
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() => handleRemoveItem(item.id)}
+                      disabled={quantity === 0}
+                      sx={{ minWidth: 36, width: 36, height: 36, p: 0 }}
+                    >
+                      <RemoveIcon fontSize="small" />
+                    </Button>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        minWidth: 24,
+                        textAlign: 'center',
+                        fontWeight: 600,
+                        color: quantity > 0 ? 'primary.main' : 'text.secondary',
+                      }}
+                    >
+                      {quantity}
+                    </Typography>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() => handleAddItem(item.id)}
+                      sx={{ minWidth: 36, width: 36, height: 36, p: 0 }}
+                    >
+                      <AddIcon fontSize="small" />
+                    </Button>
+                  </Box>
+                </Box>
               );
             })}
           </Box>
 
-          {selectedItems.size > 0 && (
-            <Box>
-              <Typography variant="body2" color="text.secondary">
-                Đã chọn: {selectedItems.size} món
-              </Typography>
-            </Box>
+          {totalQuantity > 0 && (
+            <Typography variant="body2" color="primary">
+              Đã chọn: {totalQuantity} món ({selectedItems.size} loại)
+            </Typography>
           )}
         </Box>
       </DialogContent>
@@ -148,9 +183,9 @@ export default function SelectItemDialog({
         <Button
           variant="contained"
           onClick={handleSubmit}
-          disabled={!personName.trim() || selectedItems.size === 0 || isSubmitting}
+          disabled={!personName.trim() || totalQuantity === 0 || isSubmitting}
         >
-          Xác nhận
+          {isSubmitting ? 'Đang xử lý...' : 'Xác nhận'}
         </Button>
       </DialogActions>
     </Dialog>

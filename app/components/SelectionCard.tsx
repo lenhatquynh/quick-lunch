@@ -102,32 +102,39 @@ export default function SelectionCard({
                       <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
                         {item.name}
                       </Typography>
-                      <AvatarGroup max={4} sx={{ mt: 0.5 }}>
-                        {item.selections.map((selection) => (
-                          <Tooltip
-                            key={selection.id}
-                            title={
-                              selection.personName === currentPersonName
-                                ? `${selection.personName} (bạn)`
-                                : selection.personName
-                            }
-                          >
-                            <Avatar
-                              sx={{
-                                width: 24,
-                                height: 24,
-                                fontSize: '0.75rem',
-                                bgcolor:
-                                  selection.personName === currentPersonName
-                                    ? 'primary.main'
-                                    : 'secondary.main',
-                              }}
-                            >
-                              {selection.personName.charAt(0).toUpperCase()}
-                            </Avatar>
-                          </Tooltip>
-                        ))}
-                      </AvatarGroup>
+                      {(() => {
+                        const uniquePeople = Array.from(
+                          new Set(item.selections.map((s) => s.personName))
+                        );
+                        return (
+                          <AvatarGroup max={4} sx={{ mt: 0.5 }}>
+                            {uniquePeople.map((personName) => (
+                              <Tooltip
+                                key={personName}
+                                title={
+                                  personName === currentPersonName
+                                    ? `${personName} (bạn)`
+                                    : personName
+                                }
+                              >
+                                <Avatar
+                                  sx={{
+                                    width: 24,
+                                    height: 24,
+                                    fontSize: '0.75rem',
+                                    bgcolor:
+                                      personName === currentPersonName
+                                        ? 'primary.main'
+                                        : 'secondary.main',
+                                  }}
+                                >
+                                  {personName.charAt(0).toUpperCase()}
+                                </Avatar>
+                              </Tooltip>
+                            ))}
+                          </AvatarGroup>
+                        );
+                      })()}
                     </Box>
                   </Box>
 

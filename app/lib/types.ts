@@ -29,6 +29,7 @@ export type CreateMenuRequest = {
 export type CreateSelectionRequest = {
   menuItemId: string;
   personName: string;
+  quantity?: number;
 };
 
 export type SelectionSummary = {
@@ -44,6 +45,7 @@ export type PersonSummary = {
   selections: {
     itemName: string;
     notes: string | null;
+    count: number;
   }[];
 };
 

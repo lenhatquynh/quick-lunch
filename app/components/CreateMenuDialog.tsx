@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -36,28 +36,50 @@ export default function CreateMenuDialog({
   editMenu,
 }: CreateMenuDialogProps) {
   const isEditMode = !!editMenu;
-  const [creatorName, setCreatorName] = useState("");
-  const [items, setItems] = useState<MenuItemInput[]>([
-    { name: "" },
-    { name: "" },
-    { name: "" },
-  ]);
-  const [error, setError] = useState("");
 
-  useEffect(() => {
-    if (open && editMenu) {
-      setCreatorName(editMenu.creatorName);
-      setItems(
-        editMenu.items.map((item) => ({
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle>{isEditMode ? "Sửa Menu" : "Tạo Menu Mới"}</DialogTitle>
+      <DialogContent>
+        <MenuForm
+          key={`menu-form-${open}`}
+          editMenu={editMenu}
+          onSuccess={onSuccess}
+          onClose={onClose}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function MenuForm({
+  editMenu,
+  onSuccess,
+  onClose,
+}: {
+  editMenu?: MenuWithItems | null;
+  onSuccess: () => void;
+  onClose: () => void;
+}) {
+  const [creatorName, setCreatorName] = useState(editMenu?.creatorName ?? "");
+  const [items, setItems] = useState<MenuItemInput[]>(
+    editMenu
+      ? editMenu.items.map((item) => ({
           name: item.name,
           notes: item.notes || undefined,
-        })),
-      );
-    } else if (open) {
-      setCreatorName("");
-      setItems([{ name: "" }, { name: "" }, { name: "" }]);
-    }
-  }, [open, editMenu]);
+        }))
+      : [{ name: "" }, { name: "" }, { name: "" }],
+  );
+  const [error, setError] = useState("");
+  const [bulkPasteOpen, setBulkPasteOpen] = useState(false);
+  const [bulkPasteText, setBulkPasteText] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isEditMode = !!editMenu;
+
+  const hasValidCreatorName = !isEditMode && creatorName.trim();
+  const hasValidItems = items.some((item) => item.name.trim());
+  const canSubmit = hasValidCreatorName && hasValidItems && !isSubmitting;
 
   const handleAddItem = () => {
     setItems([...items, { name: "" }]);
@@ -95,8 +117,29 @@ export default function CreateMenuDialog({
     });
   };
 
+  const handleBulkPasteOpen = () => {
+    setBulkPasteText("");
+    setBulkPasteOpen(true);
+  };
+
+  const handleBulkPasteConfirm = () => {
+    const parsed = parseItemsFromText(bulkPasteText);
+    if (parsed.length > 0) {
+      setItems(parsed);
+    }
+    setBulkPasteOpen(false);
+    setBulkPasteText("");
+  };
+
+  const handleBulkPasteCancel = () => {
+    setBulkPasteOpen(false);
+    setBulkPasteText("");
+  };
+
   const handleSubmit = async () => {
-    if (!creatorName.trim()) {
+    if (isSubmitting) return;
+
+    if (!isEditMode && !creatorName.trim()) {
       setError("Vui lòng nhập tên người tạo menu");
       return;
     }
@@ -107,6 +150,7 @@ export default function CreateMenuDialog({
       return;
     }
 
+    setIsSubmitting(true);
     try {
       if (isEditMode && editMenu) {
         const response = await fetch(`/api/menu/${editMenu.id}`, {
@@ -140,115 +184,141 @@ export default function CreateMenuDialog({
       }
 
       onSuccess();
-      handleClose();
+      onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Đã xảy ra lỗi");
-    }
-  };
-
-  const handleClose = () => {
-    setCreatorName("");
-    setItems([{ name: "" }, { name: "" }, { name: "" }]);
-    setError("");
-    onClose();
-  };
-
-  const handleBulkPaste = () => {
-    const text = prompt(
-      'Dán danh sách món ăn (mỗi món 1 dòng, vd: "1/Cá File Chiên" hoặc "Cá File Chiên + nước mắm"):',
-    );
-    if (text) {
-      const parsed = parseItemsFromText(text);
-      if (parsed.length > 0) {
-        setItems(parsed);
-      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-      <DialogTitle>{isEditMode ? "Sửa Menu" : "Tạo Menu Mới"}</DialogTitle>
-      <DialogContent>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
-          <TextField
-            label="Tên người tạo menu"
-            value={creatorName}
-            onChange={(e) => setCreatorName(e.target.value)}
-            fullWidth
-            placeholder="VD: Phú"
-          />
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
+      {!isEditMode && (
+        <TextField
+          label="Tên người tạo menu"
+          value={creatorName}
+          onChange={(e) => setCreatorName(e.target.value)}
+          fullWidth
+          placeholder="VD: Phú"
+        />
+      )}
 
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 1,
-            }}
-          >
-            <Typography variant="subtitle1">Danh sách món ăn</Typography>
-            <Button size="small" onClick={handleBulkPaste}>
-              Dán nhiều món
-            </Button>
-          </Box>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 1,
+        }}
+      >
+        <Typography variant="subtitle1">Danh sách món ăn</Typography>
+        <Button size="small" onClick={handleBulkPasteOpen}>
+          Dán nhiều món
+        </Button>
+      </Box>
 
-          <Paper
-            variant="outlined"
-            sx={{ p: 2, maxHeight: 300, overflow: "auto" }}
-          >
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              {items.map((item, index) => (
-                <Box
-                  key={index}
-                  sx={{ display: "flex", gap: 1, alignItems: "flex-start" }}
-                >
-                  <TextField
-                    size="small"
-                    placeholder={`Món ${index + 1}`}
-                    value={item.name}
-                    onChange={(e) =>
-                      handleItemChange(index, "name", e.target.value)
-                    }
-                    sx={{ flex: 2 }}
-                  />
-                  <TextField
-                    size="small"
-                    placeholder="Ghi chú (VD: + nước mắm)"
-                    value={item.notes || ""}
-                    onChange={(e) =>
-                      handleItemChange(index, "notes", e.target.value)
-                    }
-                    sx={{ flex: 1 }}
-                  />
-                  <IconButton
-                    size="small"
-                    onClick={() => handleRemoveItem(index)}
-                    disabled={items.length <= 1}
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-              ))}
+      <Paper
+        variant="outlined"
+        sx={{ p: 2, maxHeight: 300, overflow: "auto" }}
+      >
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          {items.map((item, index) => (
+            <Box
+              key={index}
+              sx={{ display: "flex", gap: 1, alignItems: "flex-start" }}
+            >
+              <TextField
+                size="small"
+                placeholder={`Món ${index + 1}`}
+                value={item.name}
+                onChange={(e) =>
+                  handleItemChange(index, "name", e.target.value)
+                }
+                sx={{ flex: 2 }}
+              />
+              <TextField
+                size="small"
+                placeholder="Ghi chú (VD: + nước mắm)"
+                value={item.notes || ""}
+                onChange={(e) =>
+                  handleItemChange(index, "notes", e.target.value)
+                }
+                sx={{ flex: 1 }}
+              />
+              <IconButton
+                size="small"
+                onClick={() => handleRemoveItem(index)}
+                disabled={items.length <= 1}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
             </Box>
-          </Paper>
-
-          <Button startIcon={<AddIcon />} onClick={handleAddItem}>
-            Thêm món
-          </Button>
-
-          {error && (
-            <Typography color="error" variant="body2">
-              {error}
-            </Typography>
-          )}
+          ))}
         </Box>
-      </DialogContent>
+      </Paper>
+
+      <Button startIcon={<AddIcon />} onClick={handleAddItem}>
+        Thêm món
+      </Button>
+
+      {error && (
+        <Typography color="error" variant="body2">
+          {error}
+        </Typography>
+      )}
+
       <DialogActions>
-        <Button onClick={handleClose}>Hủy</Button>
-        <Button variant="contained" onClick={handleSubmit}>
-          {isEditMode ? "Cập nhật Menu" : "Tạo Menu"}
+        <Button onClick={onClose}>Hủy</Button>
+        <Button
+          variant="contained"
+          onClick={handleSubmit}
+          disabled={!canSubmit}
+        >
+          {isSubmitting ? "Đang xử lý..." : (isEditMode ? "Cập nhật Menu" : "Tạo Menu")}
         </Button>
       </DialogActions>
-    </Dialog>
+
+      {/* Custom Bulk Paste Modal */}
+      <Dialog
+        open={bulkPasteOpen}
+        onClose={handleBulkPasteCancel}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Dán nhiều món</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Dán danh sách món ăn (mỗi món 1 dòng)
+          </Typography>
+          <TextField
+            multiline
+            rows={8}
+            fullWidth
+            placeholder={`Cá File Chiên\nGà Chiên Mắm\n1/Cơm Rang Dương Châu`}
+            value={bulkPasteText}
+            onChange={(e) => setBulkPasteText(e.target.value)}
+            autoFocus
+          />
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ mt: 1, display: "block" }}
+          >
+            Hỗ trợ: số thứ tự (1/, 1., 1-), ghi chú (+ nước mắm)
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleBulkPasteCancel}>Hủy</Button>
+          <Button
+            variant="contained"
+            onClick={handleBulkPasteConfirm}
+            disabled={!bulkPasteText.trim()}
+          >
+            Xác nhận
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 }
