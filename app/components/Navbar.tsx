@@ -9,8 +9,8 @@ export default function Navbar() {
 
   return (
     <AppBar position="static">
-      <Toolbar sx={{ padding: '0 16px' }}>
-        <Typography variant="h1" component="div" sx={{ flexGrow: 1 }}>
+      <Toolbar sx={{ padding: '16px' }}>
+        <Typography variant="h4" component="div" sx={{ flexGrow: 1 }}>
           🍱
         </Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
