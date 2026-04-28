@@ -60,17 +60,69 @@ export async function PUT(request: Request, { params }: { params: Params }) {
     }
 
     if (items && Array.isArray(items)) {
-      await prisma.menuItem.deleteMany({
+      // Get existing items with their selections to preserve selections
+      const existingItems = await prisma.menuItem.findMany({
         where: { menuId: id },
+        include: { selections: true },
       });
 
-      updateData.items = {
-        create: items.map((item: { name: string; notes?: string }, index: number) => ({
-          name: item.name,
-          notes: item.notes || null,
-          sortOrder: index,
-        })),
-      };
+      // Map existing items by name for matching
+      const existingItemsByName = new Map(
+        existingItems.map((item) => [item.name.toLowerCase(), item])
+      );
+
+      // Process new items: update existing ones, create new ones
+      const updates: Promise<unknown>[] = [];
+      const newItemNames: string[] = [];
+
+      for (let index = 0; index < items.length; index++) {
+        const newItem = items[index];
+        newItemNames.push(newItem.name.toLowerCase());
+
+        const existingItem = existingItemsByName.get(newItem.name.toLowerCase());
+
+        if (existingItem) {
+          // Update existing item (keep selections via cascade)
+          updates.push(
+            prisma.menuItem.update({
+              where: { id: existingItem.id },
+              data: {
+                name: newItem.name,
+                notes: newItem.notes || null,
+                sortOrder: index,
+              },
+            })
+          );
+        } else {
+          // Create new item (no selections yet)
+          updates.push(
+            prisma.menuItem.create({
+              data: {
+                menuId: id,
+                name: newItem.name,
+                notes: newItem.notes || null,
+                sortOrder: index,
+              },
+            })
+          );
+        }
+      }
+
+      // Delete items that are no longer in the new menu (cascades their selections)
+      const itemsToDelete = existingItems.filter(
+        (item) => !newItemNames.includes(item.name.toLowerCase())
+      );
+      if (itemsToDelete.length > 0) {
+        updates.push(
+          prisma.menuItem.deleteMany({
+            where: {
+              id: { in: itemsToDelete.map((item) => item.id) },
+            },
+          })
+        );
+      }
+
+      await Promise.all(updates);
     }
 
     const menu = await prisma.menu.update({

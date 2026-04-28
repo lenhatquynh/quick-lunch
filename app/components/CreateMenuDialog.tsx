@@ -200,7 +200,7 @@ function MenuForm({
           value={creatorName}
           onChange={(e) => setCreatorName(e.target.value)}
           fullWidth
-          placeholder="VD: Phú"
+          placeholder="VD: Sơn Tùng MTP"
         />
       )}
 

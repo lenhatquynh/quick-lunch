@@ -11,11 +11,16 @@ import {
   ToggleButtonGroup,
   Divider,
   Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockIcon from '@mui/icons-material/Lock';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import type { MenuItemWithSelections, SelectionSummary, PersonSummary } from '../lib/types';
 
 interface SummaryCardProps {
@@ -35,6 +40,7 @@ export default function SummaryCard({
 }: SummaryCardProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('default');
   const [copied, setCopied] = useState(false);
+  const [confirmLockOpen, setConfirmLockOpen] = useState(false);
 
   const itemSummary: SelectionSummary[] = useMemo(() => {
     return items
@@ -221,13 +227,50 @@ export default function SummaryCard({
           variant={isLocked ? 'contained' : 'outlined'}
           color={isLocked ? 'error' : 'primary'}
           startIcon={isLocked ? <LockIcon /> : <LockOpenIcon />}
-          onClick={onLockToggle}
+          onClick={() => {
+            if (isLocked) {
+              onLockToggle();
+            } else {
+              setConfirmLockOpen(true);
+            }
+          }}
           disabled={isLocking}
           fullWidth
         >
           {isLocked ? 'Mở khóa' : 'Chốt đơn'}
         </Button>
       </Box>
+
+      {/* Confirm Lock Dialog */}
+      <Dialog
+        open={confirmLockOpen}
+        onClose={() => setConfirmLockOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <WarningAmberIcon color="warning" />
+          Xác nhận chốt đơn
+        </DialogTitle>
+        <DialogContent>
+          <Typography>
+            Bạn có chắc chắn muốn chốt đơn hàng không?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmLockOpen(false)}>Hủy</Button>
+          <Button
+            variant="contained"
+            color="warning"
+            onClick={() => {
+              setConfirmLockOpen(false);
+              onLockToggle();
+            }}
+          >
+            Xác nhận
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   );
 }

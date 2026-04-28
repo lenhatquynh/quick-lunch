@@ -11,7 +11,7 @@ export default function Navbar() {
     <AppBar position="static">
       <Toolbar>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          🍱 Quick Order
+          🍱
         </Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button

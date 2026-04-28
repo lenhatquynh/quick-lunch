@@ -40,7 +40,7 @@ export default function SelectionCard({
       <CardContent sx={{ flexGrow: 1 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Typography variant="h6" component="h2">
-            📝 Danh sách chọn món
+            📝 Món Đã Chọn
           </Typography>
           {!isLocked && (
             <Button

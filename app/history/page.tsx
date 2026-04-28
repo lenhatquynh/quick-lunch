@@ -149,7 +149,7 @@ function MenuDetailDialog({
             </Typography>
 
             <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} gutterBottom>
-              Tổng kết:
+              Tổng Kết:
             </Typography>
             {itemSummary.length === 0 ? (
               <Typography variant="body2" color="text.secondary">

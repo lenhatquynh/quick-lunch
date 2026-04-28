@@ -93,7 +93,7 @@ export default function SelectItemDialog({
               <TextField
                 {...params}
                 label="Tên của bạn"
-                placeholder="VD: Phú"
+                placeholder="VD: Sơn Tùng MTP"
               />
             )}
           />

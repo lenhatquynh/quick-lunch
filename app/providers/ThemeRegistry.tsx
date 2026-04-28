@@ -16,6 +16,7 @@ const theme = createTheme({
   },
   typography: {
     fontFamily: 'inherit',
+    fontSize: 18,
   },
   components: {
     MuiCard: {
