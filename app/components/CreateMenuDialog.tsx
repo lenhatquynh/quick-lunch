@@ -212,9 +212,9 @@ function MenuForm({
           mb: 1,
         }}
       >
-        <Typography variant="subtitle1">Danh sách món ăn</Typography>
+        <Typography variant="subtitle1">Danh sách món</Typography>
         <Button size="small" onClick={handleBulkPasteOpen}>
-          Dán nhiều món
+          Dán Menu
         </Button>
       </Box>
 
@@ -286,7 +286,7 @@ function MenuForm({
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Dán nhiều món</DialogTitle>
+        <DialogTitle>Dán Menu</DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
             Dán danh sách món ăn (mỗi món 1 dòng)

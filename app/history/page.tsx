@@ -128,7 +128,7 @@ function MenuDetailDialog({
     : '';
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>Chi tiết: {formattedDate}</span>
@@ -162,26 +162,28 @@ function MenuDetailDialog({
                     key={item.itemId}
                     sx={{
                       display: 'flex',
-                      alignItems: 'center',
+                      alignItems: 'flex-start',
                       gap: 1,
                       p: 1,
                       bgcolor: 'background.default',
                       borderRadius: 1,
                     }}
                   >
-                    <Chip label={`${item.totalCount}`} size="small" color="primary" />
-                    <Typography variant="body2" sx={{ fontWeight: 'medium', flex: 1 }}>
-                      {item.itemName}
-                      {item.notes && (
-                        <Typography component="span" variant="caption" color="text.secondary">
-                          {' '}
-                          + {item.notes}
-                        </Typography>
-                      )}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      ({item.people.join(', ')})
-                    </Typography>
+                    <Chip label={`${item.totalCount}`} size="small" color="primary" sx={{ mt: 0.5 }} />
+                    <Box sx={{ flex: 1 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                        {item.itemName}
+                        {item.notes && (
+                          <Typography component="span" variant="caption" color="text.secondary">
+                            {' '}
+                            + {item.notes}
+                          </Typography>
+                        )}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        ({item.people.join(', ')})
+                      </Typography>
+                    </Box>
                   </Box>
                 ))}
               </Box>
