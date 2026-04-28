@@ -39,8 +39,8 @@ export default function SelectionCard({
     <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <CardContent sx={{ flexGrow: 1 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6" component="h2">
-            📝 Món Đã Chọn
+          <Typography variant="h6" component="h2" sx={{ fontSize: '24px' }}>
+            📝 Món đã chọn
           </Typography>
           {!isLocked && (
             <Button
