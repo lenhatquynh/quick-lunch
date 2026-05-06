@@ -10,7 +10,6 @@ import {
   Tooltip,
   Button,
   Avatar,
-  AvatarGroup,
 } from '@mui/material';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
@@ -107,54 +106,63 @@ export default function SelectionCard({
                           new Set(item.selections.map((s) => s.personName))
                         );
                         return (
-                          <AvatarGroup max={4} sx={{ mt: 0.5 }}>
-                            {uniquePeople.map((personName) => (
-                              <Tooltip
-                                key={personName}
-                                title={
-                                  personName === currentPersonName
-                                    ? `${personName} (bạn)`
-                                    : personName
-                                }
-                              >
-                                <Avatar
-                                  sx={{
-                                    width: 24,
-                                    height: 24,
-                                    fontSize: '0.75rem',
-                                    bgcolor:
-                                      personName === currentPersonName
-                                        ? 'primary.main'
-                                        : 'secondary.main',
-                                  }}
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
+                            <Box sx={{ display: 'flex', gap: -0.5 }}>
+                              {uniquePeople.slice(0, 3).map((personName) => (
+                                <Tooltip
+                                  key={personName}
+                                  title={
+                                    personName === currentPersonName
+                                      ? `${personName} (bạn)`
+                                      : personName
+                                  }
                                 >
-                                  {personName.charAt(0).toUpperCase()}
-                                </Avatar>
-                              </Tooltip>
-                            ))}
-                          </AvatarGroup>
+                                  <Avatar
+                                    sx={{
+                                      width: 20,
+                                      height: 20,
+                                      fontSize: '0.65rem',
+                                      bgcolor:
+                                        personName === currentPersonName
+                                          ? 'primary.main'
+                                          : 'secondary.main',
+                                      border: '2px solid',
+                                      borderColor: 'background.paper',
+                                      ml: -0.5,
+                                      '&:first-of-type': { ml: 0 },
+                                    }}
+                                  >
+                                    {personName.charAt(0).toUpperCase()}
+                                  </Avatar>
+                                </Tooltip>
+                              ))}
+                            </Box>
+                            {uniquePeople.length > 3 && (
+                              <Typography variant="caption" color="text.secondary">
+                                +{uniquePeople.length - 3}
+                              </Typography>
+                            )}
+                          </Box>
                         );
                       })()}
                     </Box>
                   </Box>
 
-                  {!isLocked && (
-                    <Tooltip title="Xóa lựa chọn của bạn">
-                      <IconButton
-                        size="small"
-                        onClick={() => {
-                          const mySelection = item.selections.find(
-                            (s) => s.personName === currentPersonName
-                          );
-                          if (mySelection) {
-                            onRemoveSelection(mySelection.id);
-                          }
-                        }}
-                      >
-                        <DeleteSweepIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                  )}
+                  {!isLocked && (() => {
+                    const hasMySelection = item.selections.some(
+                      (s) => s.personName === currentPersonName
+                    );
+                    return hasMySelection ? (
+                      <Tooltip title="Xóa lựa chọn của bạn">
+                        <IconButton
+                          size="small"
+                          onClick={() => onRemoveAllSelections(item.id)}
+                        >
+                          <DeleteSweepIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    ) : null;
+                  })()}
                 </Box>
               );
             })}

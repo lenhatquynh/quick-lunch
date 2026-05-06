@@ -6,6 +6,8 @@ export type MenuItemWithSelections = {
   selections: {
     id: string;
     personName: string;
+    isPaid: boolean;
+    paidAt: string | null;
   }[];
 };
 
@@ -46,7 +48,11 @@ export type PersonSummary = {
     itemName: string;
     notes: string | null;
     count: number;
+    isPaid: boolean;
   }[];
+  totalItems: number;
+  paidItems: number;
+  isFullyPaid: boolean;
 };
 
 export type HistoryMenu = {
@@ -56,4 +62,6 @@ export type HistoryMenu = {
   isLocked: boolean;
   totalItems: number;
   totalSelections: number;
+  totalPeople: number;
+  paidSelections: number;
 };

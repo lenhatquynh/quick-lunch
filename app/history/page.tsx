@@ -24,11 +24,13 @@ import {
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import CloseIcon from '@mui/icons-material/Close';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 import {
   useHistory,
   useMenuDetail,
 } from '../hooks/useApi';
-import type { HistoryMenu, SelectionSummary } from '../lib/types';
+import type { HistoryMenu } from '../lib/types';
 
 function HistoryItem({
   menu,
@@ -43,6 +45,8 @@ function HistoryItem({
     month: 'short',
     day: 'numeric',
   });
+
+  const isFullyPaid = menu.paidSelections === menu.totalPeople && menu.totalPeople > 0;
 
   return (
     <Card
@@ -59,22 +63,32 @@ function HistoryItem({
       <CardContent>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
           <Typography variant="h6">{formattedDate}</Typography>
-          {menu.isLocked ? (
-            <Chip
-              icon={<LockIcon />}
-              label="Đã chốt"
-              color="error"
-              size="small"
-            />
-          ) : (
-            <Chip
-              icon={<LockOpenIcon />}
-              label="Mở"
-              color="success"
-              size="small"
-              variant="outlined"
-            />
-          )}
+          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            {isFullyPaid && (
+              <Chip
+                icon={<CheckCircleIcon />}
+                label="đã TT"
+                color="success"
+                size="small"
+              />
+            )}
+            {menu.isLocked ? (
+              <Chip
+                icon={<LockIcon />}
+                label="Đã chốt"
+                color="error"
+                size="small"
+              />
+            ) : (
+              <Chip
+                icon={<LockOpenIcon />}
+                label="Mở"
+                color="success"
+                size="small"
+                variant="outlined"
+              />
+            )}
+          </Box>
         </Box>
         <Typography variant="body2" color="text.secondary">
           Người tạo: <strong>{menu.creatorName}</strong>
@@ -84,8 +98,13 @@ function HistoryItem({
             📋 {menu.totalItems} món
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            👥 {menu.totalSelections} lượt chọn
+            👥 {menu.totalPeople} người
           </Typography>
+          {!isFullyPaid && menu.totalPeople > 0 && (
+            <Typography variant="caption" color="warning.main">
+              💰 {menu.paidSelections}/{menu.totalPeople} đã TT
+            </Typography>
+          )}
         </Box>
       </CardContent>
     </Card>
@@ -105,18 +124,42 @@ function MenuDetailDialog({
 
   if (!menuId) return null;
 
-  const itemSummary: SelectionSummary[] = menu
-    ? menu.items
-        .filter((item) => item.selections.length > 0)
-        .map((item) => ({
-          itemId: item.id,
-          itemName: item.name,
-          totalCount: item.selections.length,
-          notes: item.notes,
-          people: item.selections.map((s) => s.personName),
-        }))
-        .sort((a, b) => b.totalCount - a.totalCount)
+  const personSummary = menu
+    ? (() => {
+        const personMap = new Map<string, { items: string[]; count: number; paidCount: number }>();
+        menu.items.forEach((item) => {
+          item.selections.forEach((selection) => {
+            const existing = personMap.get(selection.personName);
+            if (existing) {
+              existing.items.push(item.name);
+              existing.count += 1;
+              if (selection.isPaid) existing.paidCount += 1;
+            } else {
+              personMap.set(selection.personName, {
+                items: [item.name],
+                count: 1,
+                paidCount: selection.isPaid ? 1 : 0,
+              });
+            }
+          });
+        });
+        return Array.from(personMap.entries())
+          .map(([personName, data]) => ({
+            personName,
+            items: data.items,
+            totalItems: data.count,
+            paidItems: data.paidCount,
+            isFullyPaid: data.paidCount === data.count,
+          }))
+          .sort((a, b) => {
+            if (a.isFullyPaid !== b.isFullyPaid) return a.isFullyPaid ? 1 : -1;
+            return b.totalItems - a.totalItems;
+          });
+      })()
     : [];
+
+  const paidCount = personSummary.filter((p) => p.isFullyPaid).length;
+  const unpaidCount = personSummary.length - paidCount;
 
   const formattedDate = menu
     ? new Date(menu.date).toLocaleDateString('vi-VN', {
@@ -148,42 +191,55 @@ function MenuDetailDialog({
               Người tạo: <strong>{menu.creatorName}</strong>
             </Typography>
 
-            <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} gutterBottom>
-              Tổng Kết:
-            </Typography>
-            {itemSummary.length === 0 ? (
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                Tổng kết:
+              </Typography>
+              {unpaidCount > 0 && (
+                <Chip
+                  label={`${unpaidCount} chưa TT`}
+                  color="warning"
+                  size="small"
+                />
+              )}
+            </Box>
+
+            {personSummary.length === 0 ? (
               <Typography variant="body2" color="text.secondary">
                 Không có lựa chọn nào
               </Typography>
             ) : (
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 3 }}>
-                {itemSummary.map((item) => (
-                  <Box
-                    key={item.itemId}
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: 1,
-                      p: 1,
-                      bgcolor: 'background.default',
-                      borderRadius: 1,
-                    }}
-                  >
-                    <Chip label={`${item.totalCount}`} size="small" color="primary" sx={{ mt: 0.5 }} />
-                    <Box sx={{ flex: 1 }}>
-                      <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
-                        {item.itemName}
-                        {item.notes && (
-                          <Typography component="span" variant="caption" color="text.secondary">
-                            {' '}
-                            + {item.notes}
-                          </Typography>
-                        )}
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
+                {personSummary.map((person) => (
+                  <Box key={person.personName} sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Typography
+                        variant="body2"
+                        sx={{ fontWeight: 'bold', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                      >
+                        {person.personName}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        ({item.people.join(', ')})
-                      </Typography>
+                      {!person.isFullyPaid && (
+                        <Chip
+                          icon={<CancelIcon />}
+                          label="chưa TT"
+                          color="warning"
+                          size="small"
+                          sx={{ height: 20 }}
+                        />
+                      )}
                     </Box>
+                    <Typography variant="body2" color="text.secondary">
+                      {(() => {
+                        const countMap = new Map<string, number>();
+                        person.items.forEach((item) => {
+                          countMap.set(item, (countMap.get(item) || 0) + 1);
+                        });
+                        return Array.from(countMap.entries())
+                          .map(([name, count]) => (count > 1 ? `${name} x${count}` : name))
+                          .join(', ');
+                      })()}
+                    </Typography>
                   </Box>
                 ))}
               </Box>
@@ -222,7 +278,15 @@ function MenuDetailDialog({
                     }
                     secondary={
                       item.selections.length > 0
-                        ? `(${item.selections.map((s) => s.personName).join(', ')})`
+                        ? `(${(() => {
+                            const countMap = new Map<string, number>();
+                            item.selections.forEach((s) => {
+                              countMap.set(s.personName, (countMap.get(s.personName) || 0) + 1);
+                            });
+                            return Array.from(countMap.entries())
+                              .map(([name, count]) => (count > 1 ? `${name} x${count}` : name))
+                              .join(', ');
+                          })()})`
                         : undefined
                     }
                   />

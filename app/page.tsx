@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Grid,
@@ -11,13 +11,13 @@ import {
   Snackbar,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import RefreshIcon from '@mui/icons-material/Refresh';
+import PaymentsIcon from '@mui/icons-material/Payments';
 import {
   useTodayMenu,
-  useCreateMenu,
   useCreateSelection,
   useDeleteSelection,
   useUpdateMenu,
+  useConfirmAllPayments,
 } from './hooks/useApi';
 import MenuCard from './components/MenuCard';
 import SelectionCard from './components/SelectionCard';
@@ -39,10 +39,10 @@ export default function HomePage() {
   );
 
   const { data: menu, isLoading, error, refetch } = useTodayMenu();
-  const createMenu = useCreateMenu();
   const createSelection = useCreateSelection();
   const deleteSelection = useDeleteSelection();
   const updateMenu = useUpdateMenu();
+  const confirmAllPayments = useConfirmAllPayments();
 
   useEffect(() => {
     if (currentPersonName) {
@@ -68,7 +68,7 @@ export default function HomePage() {
         await createSelection.mutateAsync({ menuItemId, personName });
       }
       showSnackbar(`Đã thêm ${quantity} lựa chọn!`, 'success');
-    } catch (err) {
+    } catch {
       showSnackbar('Không thể thêm lựa chọn', 'error');
     }
   };
@@ -77,7 +77,16 @@ export default function HomePage() {
     try {
       await deleteSelection.mutateAsync({ selectionId });
       showSnackbar('Đã xóa lựa chọn', 'success');
-    } catch (err) {
+    } catch {
+      showSnackbar('Không thể xóa lựa chọn', 'error');
+    }
+  };
+
+  const handleRemoveAllSelections = async (menuItemId: string) => {
+    try {
+      await deleteSelection.mutateAsync({ menuItemId, personName: currentPersonName });
+      showSnackbar('Đã xóa tất cả lựa chọn của bạn', 'success');
+    } catch {
       showSnackbar('Không thể xóa lựa chọn', 'error');
     }
   };
@@ -93,8 +102,17 @@ export default function HomePage() {
         menu.isLocked ? 'Đã mở khóa đơn hàng!' : 'Đã chốt đơn hàng!',
         'success'
       );
-    } catch (err) {
+    } catch {
       showSnackbar('Đã chốt đơn, không cho mở khoá đâu hehe!', 'error');
+    }
+  };
+
+  const handleConfirmPayment = async (menuId: string, personName: string) => {
+    try {
+      await confirmAllPayments.mutateAsync({ menuId, personName });
+      showSnackbar(`Đã xác nhận thanh toán cho ${personName}!`, 'success');
+    } catch {
+      showSnackbar('Không thể xác nhận thanh toán', 'error');
     }
   };
 
@@ -105,6 +123,22 @@ export default function HomePage() {
   const existingNames = menu
     ? [...new Set(menu.items.flatMap((item) => item.selections.map((s) => s.personName)))]
     : [];
+
+  const hasCurrentUserPaid = useMemo(() => {
+    if (!menu || !currentPersonName) return false;
+    return menu.items.every((item) =>
+      item.selections
+        .filter((s) => s.personName === currentPersonName)
+        .every((s) => s.isPaid)
+    );
+  }, [menu, currentPersonName]);
+
+  const hasCurrentUserSelections = useMemo(() => {
+    if (!menu || !currentPersonName) return false;
+    return menu.items.some((item) =>
+      item.selections.some((s) => s.personName === currentPersonName)
+    );
+  }, [menu, currentPersonName]);
 
   if (isLoading) {
     return (
@@ -129,13 +163,21 @@ export default function HomePage() {
           🍱 Order
         </Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button
-            variant="outlined"
-            startIcon={<RefreshIcon />}
-            onClick={() => refetch()}
-          >
-            Làm mới
-          </Button>
+          {currentPersonName && hasCurrentUserSelections && !hasCurrentUserPaid && (
+            <Button
+              variant="contained"
+              color="success"
+              startIcon={<PaymentsIcon />}
+              onClick={() => {
+                if (menu) {
+                  handleConfirmPayment(menu.id, currentPersonName);
+                }
+              }}
+              disabled={confirmAllPayments.isPending}
+            >
+              Thanh Toán
+            </Button>
+          )}
           <Button
             variant="contained"
             color="primary"
@@ -143,7 +185,7 @@ export default function HomePage() {
             onClick={() => setCreateMenuOpen(true)}
             disabled={!!menu && !menu.isLocked}
           >
-            Tạo Menu Mới
+            Menu Mới
           </Button>
         </Box>
       </Box>
@@ -163,7 +205,7 @@ export default function HomePage() {
               isLocked={menu.isLocked}
               onAddSelection={() => setSelectItemOpen(true)}
               onRemoveSelection={handleRemoveSelection}
-              onRemoveAllSelections={() => {}}
+              onRemoveAllSelections={handleRemoveAllSelections}
               currentPersonName={currentPersonName}
             />
           </Grid>
@@ -173,6 +215,7 @@ export default function HomePage() {
               isLocked={menu.isLocked}
               onLockToggle={handleLockToggle}
               isLocking={updateMenu.isPending}
+              currentPersonName={currentPersonName}
             />
           </Grid>
         </Grid>

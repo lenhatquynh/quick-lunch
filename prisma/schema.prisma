@@ -35,8 +35,12 @@ model Selection {
   id         String   @id @default(cuid())
   menuItemId String
   personName String
+  isPaid     Boolean  @default(false)
+  paidAt     DateTime?
   createdAt  DateTime @default(now())
   menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
 
   @@index([menuItemId])
+  @@index([personName])
+  @@index([isPaid])
 }

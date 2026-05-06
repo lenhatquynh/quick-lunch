@@ -21,6 +21,8 @@ import CheckIcon from '@mui/icons-material/Check';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockIcon from '@mui/icons-material/Lock';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 import type { MenuItemWithSelections, SelectionSummary, PersonSummary } from '../lib/types';
 
 interface SummaryCardProps {
@@ -28,6 +30,7 @@ interface SummaryCardProps {
   isLocked: boolean;
   onLockToggle: () => void;
   isLocking: boolean;
+  currentPersonName?: string;
 }
 
 type ViewMode = 'default' | 'byPerson';
@@ -37,6 +40,7 @@ export default function SummaryCard({
   isLocked,
   onLockToggle,
   isLocking,
+  currentPersonName,
 }: SummaryCardProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('default');
   const [copied, setCopied] = useState(false);
@@ -66,7 +70,7 @@ export default function SummaryCard({
   }, [items]);
 
   const personSummary: PersonSummary[] = useMemo(() => {
-    const personMap = new Map<string, Map<string, { notes: string | null; count: number }>>();
+    const personMap = new Map<string, Map<string, { notes: string | null; count: number; isPaid: boolean }>>();
 
     items.forEach((item) => {
       item.selections.forEach((selection) => {
@@ -74,27 +78,39 @@ export default function SummaryCard({
           personMap.set(selection.personName, new Map());
         }
         const itemMap = personMap.get(selection.personName)!;
-        if (itemMap.has(item.name)) {
-          itemMap.get(item.name)!.count += 1;
+        const existing = itemMap.get(item.name);
+        if (existing) {
+          existing.count += 1;
+          existing.isPaid = existing.isPaid && selection.isPaid;
         } else {
-          itemMap.set(item.name, { notes: item.notes, count: 1 });
+          itemMap.set(item.name, { notes: item.notes, count: 1, isPaid: selection.isPaid });
         }
       });
     });
 
     return Array.from(personMap.entries())
-      .map(([personName, itemMap]) => ({
-        personName,
-        selections: Array.from(itemMap.entries()).map(([itemName, data]) => ({
+      .map(([personName, itemMap]) => {
+        const selections = Array.from(itemMap.entries()).map(([itemName, data]) => ({
           itemName,
           notes: data.notes,
           count: data.count,
-        })),
-      }))
-      .sort((a, b) => b.selections.reduce((acc, s) => acc + s.count, 0) - a.selections.reduce((acc, s) => acc + s.count, 0));
+          isPaid: data.isPaid,
+        }));
+        const totalItems = selections.reduce((acc, s) => acc + s.count, 0);
+        const paidItems = selections.filter((s) => s.isPaid).reduce((acc, s) => acc + s.count, 0);
+        return {
+          personName,
+          selections,
+          totalItems,
+          paidItems,
+          isFullyPaid: paidItems === totalItems,
+        };
+      })
+      .sort((a, b) => {
+        if (a.isFullyPaid !== b.isFullyPaid) return a.isFullyPaid ? 1 : -1;
+        return b.totalItems - a.totalItems;
+      });
   }, [items]);
-
-  const totalItems = itemSummary.reduce((acc, item) => acc + item.totalCount, 0);
 
   const generateText = () => {
     if (viewMode === 'default') {
@@ -108,7 +124,7 @@ export default function SummaryCard({
       return personSummary
         .map(
           (person) =>
-            `${person.personName}: ${person.selections
+            `${person.personName}${person.isFullyPaid ? ' [đã TT]' : ' [chưa TT]'}: ${person.selections
               .map((s) => `${s.count} ${s.itemName}${s.notes ? ` + ${s.notes}` : ''}`)
               .join(', ')}`
         )
@@ -130,23 +146,27 @@ export default function SummaryCard({
           <Typography variant="h6" component="h2">
             📊 Tổng kết
           </Typography>
-          <Chip
-            label={`${totalItems} món đã chọn`}
-            color="primary"
-            size="small"
-          />
+          {personSummary.filter((p) => !p.isFullyPaid).length > 0 && (
+            <Chip
+              label={`${personSummary.filter((p) => !p.isFullyPaid).length} chưa TT`}
+              color="warning"
+              size="small"
+              icon={<CancelIcon />}
+            />
+          )}
         </Box>
 
-        <ToggleButtonGroup
-          value={viewMode}
-          exclusive
-          onChange={(_, value) => value && setViewMode(value)}
-          size="small"
-          sx={{ mb: 2 }}
-        >
-          <ToggleButton value="default">Theo món</ToggleButton>
-          <ToggleButton value="byPerson">Theo người</ToggleButton>
-        </ToggleButtonGroup>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
+          <ToggleButtonGroup
+            value={viewMode}
+            exclusive
+            onChange={(_, value) => value && setViewMode(value)}
+            size="small"
+          >
+            <ToggleButton value="default">Theo món</ToggleButton>
+            <ToggleButton value="byPerson">Theo người</ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
 
         <Divider sx={{ my: 2 }} />
 
@@ -172,43 +192,65 @@ export default function SummaryCard({
                 key={item.itemId}
                 sx={{
                   display: 'flex',
-                  alignItems: 'center',
+                  alignItems: 'flex-start',
                   gap: 1,
                   p: 1,
                   bgcolor: 'background.default',
                   borderRadius: 1,
                 }}
               >
-                <Chip label={`${item.totalCount}`} size="small" color="primary" />
-                <Typography variant="body2" sx={{ fontWeight: 'medium', flex: 1 }}>
-                  {item.itemName}
-                  {item.notes && (
-                    <Typography component="span" variant="caption" color="text.secondary">
-                      {' '}
-                      + {item.notes}
-                    </Typography>
-                  )}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  ({item.people.join(', ')})
-                </Typography>
+                <Chip label={`${item.totalCount}`} size="small" color="primary" sx={{ mt: 0.25 }} />
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                    {item.itemName}
+                    {item.notes && (
+                      <Typography component="span" variant="caption" color="text.secondary">
+                        {' '}
+                        + {item.notes}
+                      </Typography>
+                    )}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {item.people.join(', ')}
+                  </Typography>
+                </Box>
               </Box>
             ))}
           </Box>
         ) : (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {personSummary.map((person) => (
-              <Box key={person.personName}>
-                <Typography variant="subtitle2" gutterBottom>
-                  {person.personName}:
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {person.selections
-                    .map((s) => `${s.count} ${s.itemName}${s.notes ? ` + ${s.notes}` : ''}`)
-                    .join(', ')}
-                </Typography>
-              </Box>
-            ))}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            {personSummary.length === 0 ? (
+              <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+                Không có người nào trong danh sách này
+              </Typography>
+            ) : (
+              personSummary.map((person) => (
+                <Box key={person.personName} sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ fontWeight: 'bold', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                    >
+                      {person.personName}
+                    </Typography>
+                    {!person.isFullyPaid && (
+                      <Chip
+                        icon={<CancelIcon />}
+                        label="chưa TT"
+                        color="warning"
+                        size="small"
+                        sx={{ height: 20 }}
+                      />
+                    )}
+                  </Box>
+                  <Typography variant="body2" color="text.secondary">
+                    {person.selections
+                      .map((s) => `${s.count} ${s.itemName}${s.notes ? ` + ${s.notes}` : ''}`)
+                      .join(', ')}
+                  </Typography>
+                </Box>
+              ))
+            )}
           </Box>
         )}
       </CardContent>

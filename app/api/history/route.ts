@@ -16,14 +16,36 @@ export async function GET() {
       },
     });
 
-    const history = menus.map((menu) => ({
-      id: menu.id,
-      date: menu.date.toISOString().split('T')[0],
-      creatorName: menu.creatorName,
-      isLocked: menu.isLocked,
-      totalItems: menu.items.length,
-      totalSelections: menu.items.reduce((acc, item) => acc + item.selections.length, 0),
-    }));
+    const history = menus.map((menu) => {
+      const allSelections = menu.items.flatMap((item) => item.selections);
+      
+      // Đếm số người đã thanh toán hết
+      const personMap = new Map<string, { total: number; paid: number }>();
+      allSelections.forEach((selection) => {
+        const existing = personMap.get(selection.personName);
+        if (existing) {
+          existing.total += 1;
+          if (selection.isPaid) existing.paid += 1;
+        } else {
+          personMap.set(selection.personName, {
+            total: 1,
+            paid: selection.isPaid ? 1 : 0,
+          });
+        }
+      });
+      const paidPeople = Array.from(personMap.values()).filter((p) => p.paid === p.total).length;
+
+      return {
+        id: menu.id,
+        date: menu.date.toISOString().split('T')[0],
+        creatorName: menu.creatorName,
+        isLocked: menu.isLocked,
+        totalItems: menu.items.length,
+        totalSelections: allSelections.length,
+        totalPeople: personMap.size,
+        paidSelections: paidPeople,
+      };
+    });
 
     return NextResponse.json(history);
   } catch (error) {

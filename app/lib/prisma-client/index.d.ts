@@ -3323,6 +3323,8 @@ export namespace Prisma {
     id: string | null
     menuItemId: string | null
     personName: string | null
+    isPaid: boolean | null
+    paidAt: Date | null
     createdAt: Date | null
   }
 
@@ -3330,6 +3332,8 @@ export namespace Prisma {
     id: string | null
     menuItemId: string | null
     personName: string | null
+    isPaid: boolean | null
+    paidAt: Date | null
     createdAt: Date | null
   }
 
@@ -3337,6 +3341,8 @@ export namespace Prisma {
     id: number
     menuItemId: number
     personName: number
+    isPaid: number
+    paidAt: number
     createdAt: number
     _all: number
   }
@@ -3346,6 +3352,8 @@ export namespace Prisma {
     id?: true
     menuItemId?: true
     personName?: true
+    isPaid?: true
+    paidAt?: true
     createdAt?: true
   }
 
@@ -3353,6 +3361,8 @@ export namespace Prisma {
     id?: true
     menuItemId?: true
     personName?: true
+    isPaid?: true
+    paidAt?: true
     createdAt?: true
   }
 
@@ -3360,6 +3370,8 @@ export namespace Prisma {
     id?: true
     menuItemId?: true
     personName?: true
+    isPaid?: true
+    paidAt?: true
     createdAt?: true
     _all?: true
   }
@@ -3440,6 +3452,8 @@ export namespace Prisma {
     id: string
     menuItemId: string
     personName: string
+    isPaid: boolean
+    paidAt: Date | null
     createdAt: Date
     _count: SelectionCountAggregateOutputType | null
     _min: SelectionMinAggregateOutputType | null
@@ -3464,6 +3478,8 @@ export namespace Prisma {
     id?: boolean
     menuItemId?: boolean
     personName?: boolean
+    isPaid?: boolean
+    paidAt?: boolean
     createdAt?: boolean
     menuItem?: boolean | MenuItemDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["selection"]>
@@ -3472,6 +3488,8 @@ export namespace Prisma {
     id?: boolean
     menuItemId?: boolean
     personName?: boolean
+    isPaid?: boolean
+    paidAt?: boolean
     createdAt?: boolean
     menuItem?: boolean | MenuItemDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["selection"]>
@@ -3480,6 +3498,8 @@ export namespace Prisma {
     id?: boolean
     menuItemId?: boolean
     personName?: boolean
+    isPaid?: boolean
+    paidAt?: boolean
     createdAt?: boolean
     menuItem?: boolean | MenuItemDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["selection"]>
@@ -3488,10 +3508,12 @@ export namespace Prisma {
     id?: boolean
     menuItemId?: boolean
     personName?: boolean
+    isPaid?: boolean
+    paidAt?: boolean
     createdAt?: boolean
   }
 
-  export type SelectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "menuItemId" | "personName" | "createdAt", ExtArgs["result"]["selection"]>
+  export type SelectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "menuItemId" | "personName" | "isPaid" | "paidAt" | "createdAt", ExtArgs["result"]["selection"]>
   export type SelectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     menuItem?: boolean | MenuItemDefaultArgs<ExtArgs>
   }
@@ -3511,6 +3533,8 @@ export namespace Prisma {
       id: string
       menuItemId: string
       personName: string
+      isPaid: boolean
+      paidAt: Date | null
       createdAt: Date
     }, ExtArgs["result"]["selection"]>
     composites: {}
@@ -3939,6 +3963,8 @@ export namespace Prisma {
     readonly id: FieldRef<"Selection", 'String'>
     readonly menuItemId: FieldRef<"Selection", 'String'>
     readonly personName: FieldRef<"Selection", 'String'>
+    readonly isPaid: FieldRef<"Selection", 'Boolean'>
+    readonly paidAt: FieldRef<"Selection", 'DateTime'>
     readonly createdAt: FieldRef<"Selection", 'DateTime'>
   }
     
@@ -4395,6 +4421,8 @@ export namespace Prisma {
     id: 'id',
     menuItemId: 'menuItemId',
     personName: 'personName',
+    isPaid: 'isPaid',
+    paidAt: 'paidAt',
     createdAt: 'createdAt'
   };
 
@@ -4623,6 +4651,8 @@ export namespace Prisma {
     id?: StringFilter<"Selection"> | string
     menuItemId?: StringFilter<"Selection"> | string
     personName?: StringFilter<"Selection"> | string
+    isPaid?: BoolFilter<"Selection"> | boolean
+    paidAt?: DateTimeNullableFilter<"Selection"> | Date | string | null
     createdAt?: DateTimeFilter<"Selection"> | Date | string
     menuItem?: XOR<MenuItemScalarRelationFilter, MenuItemWhereInput>
   }
@@ -4631,6 +4661,8 @@ export namespace Prisma {
     id?: SortOrder
     menuItemId?: SortOrder
     personName?: SortOrder
+    isPaid?: SortOrder
+    paidAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     menuItem?: MenuItemOrderByWithRelationInput
   }
@@ -4642,6 +4674,8 @@ export namespace Prisma {
     NOT?: SelectionWhereInput | SelectionWhereInput[]
     menuItemId?: StringFilter<"Selection"> | string
     personName?: StringFilter<"Selection"> | string
+    isPaid?: BoolFilter<"Selection"> | boolean
+    paidAt?: DateTimeNullableFilter<"Selection"> | Date | string | null
     createdAt?: DateTimeFilter<"Selection"> | Date | string
     menuItem?: XOR<MenuItemScalarRelationFilter, MenuItemWhereInput>
   }, "id">
@@ -4650,6 +4684,8 @@ export namespace Prisma {
     id?: SortOrder
     menuItemId?: SortOrder
     personName?: SortOrder
+    isPaid?: SortOrder
+    paidAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: SelectionCountOrderByAggregateInput
     _max?: SelectionMaxOrderByAggregateInput
@@ -4663,6 +4699,8 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Selection"> | string
     menuItemId?: StringWithAggregatesFilter<"Selection"> | string
     personName?: StringWithAggregatesFilter<"Selection"> | string
+    isPaid?: BoolWithAggregatesFilter<"Selection"> | boolean
+    paidAt?: DateTimeNullableWithAggregatesFilter<"Selection"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Selection"> | Date | string
   }
 
@@ -4795,6 +4833,8 @@ export namespace Prisma {
   export type SelectionCreateInput = {
     id?: string
     personName: string
+    isPaid?: boolean
+    paidAt?: Date | string | null
     createdAt?: Date | string
     menuItem: MenuItemCreateNestedOneWithoutSelectionsInput
   }
@@ -4803,12 +4843,16 @@ export namespace Prisma {
     id?: string
     menuItemId: string
     personName: string
+    isPaid?: boolean
+    paidAt?: Date | string | null
     createdAt?: Date | string
   }
 
   export type SelectionUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     personName?: StringFieldUpdateOperationsInput | string
+    isPaid?: BoolFieldUpdateOperationsInput | boolean
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     menuItem?: MenuItemUpdateOneRequiredWithoutSelectionsNestedInput
   }
@@ -4817,6 +4861,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     menuItemId?: StringFieldUpdateOperationsInput | string
     personName?: StringFieldUpdateOperationsInput | string
+    isPaid?: BoolFieldUpdateOperationsInput | boolean
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -4824,12 +4870,16 @@ export namespace Prisma {
     id?: string
     menuItemId: string
     personName: string
+    isPaid?: boolean
+    paidAt?: Date | string | null
     createdAt?: Date | string
   }
 
   export type SelectionUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     personName?: StringFieldUpdateOperationsInput | string
+    isPaid?: BoolFieldUpdateOperationsInput | boolean
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -4837,6 +4887,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     menuItemId?: StringFieldUpdateOperationsInput | string
     personName?: StringFieldUpdateOperationsInput | string
+    isPaid?: BoolFieldUpdateOperationsInput | boolean
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -5060,6 +5112,17 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type MenuItemScalarRelationFilter = {
     is?: MenuItemWhereInput
     isNot?: MenuItemWhereInput
@@ -5069,6 +5132,8 @@ export namespace Prisma {
     id?: SortOrder
     menuItemId?: SortOrder
     personName?: SortOrder
+    isPaid?: SortOrder
+    paidAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -5076,6 +5141,8 @@ export namespace Prisma {
     id?: SortOrder
     menuItemId?: SortOrder
     personName?: SortOrder
+    isPaid?: SortOrder
+    paidAt?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -5083,7 +5150,23 @@ export namespace Prisma {
     id?: SortOrder
     menuItemId?: SortOrder
     personName?: SortOrder
+    isPaid?: SortOrder
+    paidAt?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type MenuItemCreateNestedManyWithoutMenuInput = {
@@ -5212,6 +5295,10 @@ export namespace Prisma {
     create?: XOR<MenuItemCreateWithoutSelectionsInput, MenuItemUncheckedCreateWithoutSelectionsInput>
     connectOrCreate?: MenuItemCreateOrConnectWithoutSelectionsInput
     connect?: MenuItemWhereUniqueInput
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
   }
 
   export type MenuItemUpdateOneRequiredWithoutSelectionsNestedInput = {
@@ -5371,6 +5458,31 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type MenuItemCreateWithoutMenuInput = {
     id?: string
     name: string
@@ -5450,12 +5562,16 @@ export namespace Prisma {
   export type SelectionCreateWithoutMenuItemInput = {
     id?: string
     personName: string
+    isPaid?: boolean
+    paidAt?: Date | string | null
     createdAt?: Date | string
   }
 
   export type SelectionUncheckedCreateWithoutMenuItemInput = {
     id?: string
     personName: string
+    isPaid?: boolean
+    paidAt?: Date | string | null
     createdAt?: Date | string
   }
 
@@ -5521,6 +5637,8 @@ export namespace Prisma {
     id?: StringFilter<"Selection"> | string
     menuItemId?: StringFilter<"Selection"> | string
     personName?: StringFilter<"Selection"> | string
+    isPaid?: BoolFilter<"Selection"> | boolean
+    paidAt?: DateTimeNullableFilter<"Selection"> | Date | string | null
     createdAt?: DateTimeFilter<"Selection"> | Date | string
   }
 
@@ -5605,24 +5723,32 @@ export namespace Prisma {
   export type SelectionCreateManyMenuItemInput = {
     id?: string
     personName: string
+    isPaid?: boolean
+    paidAt?: Date | string | null
     createdAt?: Date | string
   }
 
   export type SelectionUpdateWithoutMenuItemInput = {
     id?: StringFieldUpdateOperationsInput | string
     personName?: StringFieldUpdateOperationsInput | string
+    isPaid?: BoolFieldUpdateOperationsInput | boolean
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SelectionUncheckedUpdateWithoutMenuItemInput = {
     id?: StringFieldUpdateOperationsInput | string
     personName?: StringFieldUpdateOperationsInput | string
+    isPaid?: BoolFieldUpdateOperationsInput | boolean
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SelectionUncheckedUpdateManyWithoutMenuItemInput = {
     id?: StringFieldUpdateOperationsInput | string
     personName?: StringFieldUpdateOperationsInput | string
+    isPaid?: BoolFieldUpdateOperationsInput | boolean
+    paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

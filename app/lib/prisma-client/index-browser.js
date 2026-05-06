@@ -142,6 +142,8 @@ exports.Prisma.SelectionScalarFieldEnum = {
   id: 'id',
   menuItemId: 'menuItemId',
   personName: 'personName',
+  isPaid: 'isPaid',
+  paidAt: 'paidAt',
   createdAt: 'createdAt'
 };
 

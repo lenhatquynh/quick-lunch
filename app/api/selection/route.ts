@@ -61,6 +61,7 @@ export async function DELETE(request: Request) {
     const { searchParams } = new URL(request.url);
     const selectionId = searchParams.get('selectionId');
     const menuItemId = searchParams.get('menuItemId');
+    const personName = searchParams.get('personName');
 
     if (selectionId) {
       const selection = await prisma.selection.findUnique({
@@ -100,7 +101,10 @@ export async function DELETE(request: Request) {
       }
 
       await prisma.selection.deleteMany({
-        where: { menuItemId },
+        where: {
+          menuItemId,
+          ...(personName && personName.trim() ? { personName: personName.trim() } : {}),
+        },
       });
     } else {
       return NextResponse.json(
