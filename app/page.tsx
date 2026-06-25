@@ -140,6 +140,27 @@ export default function HomePage() {
     );
   }, [menu, currentPersonName]);
 
+  const menuDate = useMemo(() => {
+    if (!menu) return null;
+    return new Date(menu.date);
+  }, [menu]);
+
+  const isToday = useMemo(() => {
+    if (!menuDate) return true;
+    const today = new Date();
+    return menuDate.toDateString() === today.toDateString();
+  }, [menuDate]);
+
+  const formattedDate = useMemo(() => {
+    if (!menuDate) return '';
+    return menuDate.toLocaleDateString('vi-VN', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  }, [menuDate]);
+
   if (isLoading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
@@ -159,9 +180,16 @@ export default function HomePage() {
   return (
     <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexDirection: { xs: 'column', sm: 'row' }, gap: 1 }}>
-        <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
-          🍱 Order
-        </Typography>
+        <Box>
+          <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
+            🍱 Order
+          </Typography>
+          {!isToday && menuDate && (
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              Menu ngày {formattedDate}
+            </Typography>
+          )}
+        </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
           {currentPersonName && hasCurrentUserSelections && !hasCurrentUserPaid && (
             <Button

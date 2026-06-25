@@ -3,15 +3,9 @@ import { prisma } from '../../lib/prisma';
 
 export async function GET() {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
     const menu = await prisma.menu.findFirst({
       where: {
-        date: {
-          gte: today,
-          lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
-        },
+        isLocked: false,
       },
       include: {
         items: {
