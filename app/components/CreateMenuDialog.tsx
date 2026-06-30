@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useUpdateMenu } from "../hooks/useApi";
 import type { MenuWithItems } from "../lib/types";
 
 interface CreateMenuDialogProps {
@@ -74,6 +75,8 @@ function MenuForm({
   const [bulkPasteOpen, setBulkPasteOpen] = useState(false);
   const [bulkPasteText, setBulkPasteText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const updateMenu = useUpdateMenu();
 
   const isEditMode = !!editMenu;
 
@@ -140,7 +143,7 @@ function MenuForm({
     if (isSubmitting) return;
 
     if (!isEditMode && !creatorName.trim()) {
-      setError("Vui lòng nhập tên người tạo menu");
+      setError("Vui lòng nhập tên menu");
       return;
     }
 
@@ -153,18 +156,10 @@ function MenuForm({
     setIsSubmitting(true);
     try {
       if (isEditMode && editMenu) {
-        const response = await fetch(`/api/menu/${editMenu.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            items: validItems,
-          }),
+        await updateMenu.mutateAsync({
+          id: editMenu.id,
+          items: validItems,
         });
-
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || "Failed to update menu");
-        }
       } else {
         const today = new Date().toISOString().split("T")[0];
         const response = await fetch("/api/menu", {
@@ -196,11 +191,11 @@ function MenuForm({
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
       {!isEditMode && (
         <TextField
-          label="Tên người tạo menu"
+          label="Menu"
           value={creatorName}
           onChange={(e) => setCreatorName(e.target.value)}
           fullWidth
-          placeholder="VD: Sơn Tùng MTP"
+          placeholder="VD: Bữa trưa T4 01/12/2026"
         />
       )}
 

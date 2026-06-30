@@ -16,15 +16,15 @@ export default function Navbar() {
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button
             component={Link}
-            href="/"
+            href="/menu"
             sx={{
               border: '1px solid rgba(255,255,255,0.3)',
-              color: pathname === '/' ? '#fff' : 'rgba(255,255,255,0.7)',
-              fontWeight: pathname === '/' ? 700 : 500,
+              color: pathname === '/menu' || pathname === '/menu/' ? '#fff' : 'rgba(255,255,255,0.7)',
+              fontWeight: pathname === '/menu' || pathname === '/menu/' ? 700 : 500,
               px: 2.5,
               py: 1,
               borderRadius: 2,
-              backgroundColor: pathname === '/' ? 'rgba(255,255,255,0.15)' : 'transparent',
+              backgroundColor: pathname === '/menu' || pathname === '/menu/' ? 'rgba(255,255,255,0.15)' : 'transparent',
               '&:hover': {
                 backgroundColor: 'rgba(255,255,255,0.1)',
                 color: '#fff',
@@ -32,7 +32,7 @@ export default function Navbar() {
               transition: 'all 0.2s ease-in-out',
             }}
             >
-            Order
+            Menu
           </Button>
           <Button
             component={Link}

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -15,34 +15,30 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-} from '@mui/material';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import CheckIcon from '@mui/icons-material/Check';
-import LockOpenIcon from '@mui/icons-material/LockOpen';
-import LockIcon from '@mui/icons-material/Lock';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
-import type { MenuItemWithSelections, SelectionSummary, PersonSummary } from '../lib/types';
+} from "@mui/material";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import CheckIcon from "@mui/icons-material/Check";
+import LockOpenIcon from "@mui/icons-material/LockOpen";
+import LockIcon from "@mui/icons-material/Lock";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import type { MenuItemWithSelections, SelectionSummary } from "../lib/types";
 
 interface SummaryCardProps {
   items: MenuItemWithSelections[];
   isLocked: boolean;
   onLockToggle: () => void;
   isLocking: boolean;
-  currentPersonName?: string;
 }
 
-type ViewMode = 'default' | 'byPerson';
+type ViewMode = "default" | "byPerson";
 
 export default function SummaryCard({
   items,
   isLocked,
   onLockToggle,
   isLocking,
-  currentPersonName,
 }: SummaryCardProps) {
-  const [viewMode, setViewMode] = useState<ViewMode>('default');
+  const [viewMode, setViewMode] = useState<ViewMode>("default");
   const [copied, setCopied] = useState(false);
   const [confirmLockOpen, setConfirmLockOpen] = useState(false);
 
@@ -55,8 +51,8 @@ export default function SummaryCard({
           people.reduce((acc, name) => {
             acc.set(name, (acc.get(name) || 0) + 1);
             return acc;
-          }, new Map<string, number>())
-        ).map(([name, count]) => count > 1 ? `${name} x${count}` : name);
+          }, new Map<string, number>()),
+        ).map(([name, count]) => (count > 1 ? `${name} x${count}` : name));
 
         return {
           itemId: item.id,
@@ -69,8 +65,11 @@ export default function SummaryCard({
       .sort((a, b) => b.totalCount - a.totalCount);
   }, [items]);
 
-  const personSummary: PersonSummary[] = useMemo(() => {
-    const personMap = new Map<string, Map<string, { notes: string | null; count: number; isPaid: boolean }>>();
+  const personSummary = useMemo(() => {
+    const personMap = new Map<
+      string,
+      Map<string, { notes: string | null; count: number }>
+    >();
 
     items.forEach((item) => {
       item.selections.forEach((selection) => {
@@ -81,54 +80,51 @@ export default function SummaryCard({
         const existing = itemMap.get(item.name);
         if (existing) {
           existing.count += 1;
-          existing.isPaid = existing.isPaid && selection.isPaid;
         } else {
-          itemMap.set(item.name, { notes: item.notes, count: 1, isPaid: selection.isPaid });
+          itemMap.set(item.name, { notes: item.notes, count: 1 });
         }
       });
     });
 
     return Array.from(personMap.entries())
       .map(([personName, itemMap]) => {
-        const selections = Array.from(itemMap.entries()).map(([itemName, data]) => ({
-          itemName,
-          notes: data.notes,
-          count: data.count,
-          isPaid: data.isPaid,
-        }));
+        const selections = Array.from(itemMap.entries()).map(
+          ([itemName, data]) => ({
+            itemName,
+            notes: data.notes,
+            count: data.count,
+          }),
+        );
         const totalItems = selections.reduce((acc, s) => acc + s.count, 0);
-        const paidItems = selections.filter((s) => s.isPaid).reduce((acc, s) => acc + s.count, 0);
         return {
           personName,
           selections,
           totalItems,
-          paidItems,
-          isFullyPaid: paidItems === totalItems,
         };
       })
-      .sort((a, b) => {
-        if (a.isFullyPaid !== b.isFullyPaid) return a.isFullyPaid ? 1 : -1;
-        return b.totalItems - a.totalItems;
-      });
+      .sort((a, b) => b.totalItems - a.totalItems);
   }, [items]);
 
   const generateText = () => {
-    if (viewMode === 'default') {
+    if (viewMode === "default") {
       return itemSummary
         .map(
           (item) =>
-            `${item.totalCount} ${item.itemName}${item.notes ? ` + ${item.notes}` : ''} (${item.people.join(', ')})`
+            `${item.totalCount} ${item.itemName}${item.notes ? ` + ${item.notes}` : ""} (${item.people.join(", ")})`,
         )
-        .join('\n');
+        .join("\n");
     } else {
       return personSummary
         .map(
           (person) =>
-            `${person.personName}${person.isFullyPaid ? ' [đã TT]' : ' [chưa TT]'}: ${person.selections
-              .map((s) => `${s.count} ${s.itemName}${s.notes ? ` + ${s.notes}` : ''}`)
-              .join(', ')}`
+            `${person.personName}: ${person.selections
+              .map(
+                (s) =>
+                  `${s.count} ${s.itemName}${s.notes ? ` + ${s.notes}` : ""}`,
+              )
+              .join(", ")}`,
         )
-        .join('\n');
+        .join("\n");
     }
   };
 
@@ -140,23 +136,22 @@ export default function SummaryCard({
   };
 
   return (
-    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <CardContent sx={{ flexGrow: 1 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
           <Typography variant="h6" component="h2">
             📊 Tổng kết
           </Typography>
-          {personSummary.filter((p) => !p.isFullyPaid).length > 0 && (
-            <Chip
-              label={`${personSummary.filter((p) => !p.isFullyPaid).length} chưa TT`}
-              color="warning"
-              size="small"
-              icon={<CancelIcon />}
-            />
-          )}
         </Box>
 
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
+        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2 }}>
           <ToggleButtonGroup
             value={viewMode}
             exclusive
@@ -173,10 +168,10 @@ export default function SummaryCard({
         {itemSummary.length === 0 ? (
           <Box
             sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
               py: 4,
               opacity: 0.6,
             }}
@@ -185,68 +180,82 @@ export default function SummaryCard({
               Chưa có dữ liệu
             </Typography>
           </Box>
-        ) : viewMode === 'default' ? (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+        ) : viewMode === "default" ? (
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
             {itemSummary.map((item) => (
               <Box
                 key={item.itemId}
                 sx={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
+                  display: "flex",
+                  alignItems: "flex-start",
                   gap: 1,
                   p: 1,
-                  bgcolor: 'background.default',
+                  bgcolor: "background.default",
                   borderRadius: 1,
                 }}
               >
-                <Chip label={`${item.totalCount}`} size="small" color="primary" sx={{ mt: 0.25 }} />
+                <Chip
+                  label={`${item.totalCount}`}
+                  size="small"
+                  color="primary"
+                  sx={{ mt: 0.25 }}
+                />
                 <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                  <Typography variant="body2" sx={{ fontWeight: "medium" }}>
                     {item.itemName}
                     {item.notes && (
-                      <Typography component="span" variant="caption" color="text.secondary">
-                        {' '}
+                      <Typography
+                        component="span"
+                        variant="caption"
+                        color="text.secondary"
+                      >
+                        {" "}
                         + {item.notes}
                       </Typography>
                     )}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
-                    {item.people.join(', ')}
+                    {item.people.join(", ")}
                   </Typography>
                 </Box>
               </Box>
             ))}
           </Box>
         ) : (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
             {personSummary.length === 0 ? (
-              <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ textAlign: "center", py: 2 }}
+              >
                 Không có người nào trong danh sách này
               </Typography>
             ) : (
               personSummary.map((person) => (
-                <Box key={person.personName} sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography
-                      variant="body2"
-                      sx={{ fontWeight: 'bold', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                    >
-                      {person.personName}
-                    </Typography>
-                    {!person.isFullyPaid && (
-                      <Chip
-                        icon={<CancelIcon />}
-                        label="chưa TT"
-                        color="warning"
-                        size="small"
-                        sx={{ height: 20 }}
-                      />
-                    )}
-                  </Box>
+                <Box
+                  key={person.personName}
+                  sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: "bold",
+                      maxWidth: 200,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {person.personName}
+                  </Typography>
                   <Typography variant="body2" color="text.secondary">
                     {person.selections
-                      .map((s) => `${s.count} ${s.itemName}${s.notes ? ` + ${s.notes}` : ''}`)
-                      .join(', ')}
+                      .map(
+                        (s) =>
+                          `${s.count} ${s.itemName}${s.notes ? ` + ${s.notes}` : ""}`,
+                      )
+                      .join(", ")}
                   </Typography>
                 </Box>
               ))
@@ -255,7 +264,7 @@ export default function SummaryCard({
         )}
       </CardContent>
 
-      <Box sx={{ p: 2, pt: 0, display: 'flex', gap: 1 }}>
+      <Box sx={{ p: 2, pt: 0, display: "flex", gap: 1 }}>
         <Button
           variant="outlined"
           startIcon={copied ? <CheckIcon /> : <ContentCopyIcon />}
@@ -263,24 +272,26 @@ export default function SummaryCard({
           disabled={itemSummary.length === 0}
           fullWidth
         >
-          {copied ? 'Đã copy!' : 'Copy text'}
+          {copied ? "Đã copy!" : "Copy text"}
         </Button>
-        <Button
-          variant={isLocked ? 'contained' : 'outlined'}
-          color={isLocked ? 'error' : 'primary'}
-          startIcon={isLocked ? <LockIcon /> : <LockOpenIcon />}
-          onClick={() => {
-            if (isLocked) {
-              onLockToggle();
-            } else {
-              setConfirmLockOpen(true);
-            }
-          }}
-          disabled={isLocking}
-          fullWidth
-        >
-          {isLocked ? 'Mở khóa' : 'Chốt đơn'}
-        </Button>
+        {!isLocked && (
+          <Button
+            variant={isLocked ? "contained" : "outlined"}
+            color={isLocked ? "error" : "primary"}
+            startIcon={isLocked ? <LockIcon /> : <LockOpenIcon />}
+            onClick={() => {
+              if (isLocked) {
+                onLockToggle();
+              } else {
+                setConfirmLockOpen(true);
+              }
+            }}
+            disabled={isLocking || isLocked}
+            fullWidth
+          >
+            Chốt đơn
+          </Button>
+        )}
       </Box>
 
       {/* Confirm Lock Dialog */}
@@ -290,14 +301,12 @@ export default function SummaryCard({
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <WarningAmberIcon color="warning" />
           Xác nhận chốt đơn
         </DialogTitle>
         <DialogContent>
-          <Typography>
-            Bạn có chắc chắn muốn chốt đơn hàng không?
-          </Typography>
+          <Typography>Bạn có chắc chắn muốn chốt đơn hàng không?</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setConfirmLockOpen(false)}>Hủy</Button>

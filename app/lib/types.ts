@@ -48,11 +48,8 @@ export type PersonSummary = {
     itemName: string;
     notes: string | null;
     count: number;
-    isPaid: boolean;
   }[];
   totalItems: number;
-  paidItems: number;
-  isFullyPaid: boolean;
 };
 
 export type HistoryMenu = {

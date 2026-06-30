@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../lib/api';
 import type {
   MenuWithItems,
@@ -8,6 +8,16 @@ import type {
   CreateSelectionRequest,
   HistoryMenu,
 } from '../lib/types';
+
+export function useActiveMenus() {
+  return useQuery<MenuWithItems[]>({
+    queryKey: ['activeMenus'],
+    queryFn: async () => {
+      const { data } = await api.get('/menu/active');
+      return data;
+    },
+  });
+}
 
 export function useTodayMenu() {
   return useQuery<MenuWithItems | null>({
@@ -28,7 +38,8 @@ export function useCreateMenu() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todayMenu'] });
+      queryClient.invalidateQueries({ queryKey: ['activeMenus'] });
+      queryClient.invalidateQueries({ queryKey: ['menu'] });
       queryClient.invalidateQueries({ queryKey: ['history'] });
     },
   });
@@ -38,12 +49,12 @@ export function useUpdateMenu() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, ...updates }: { id: string; isLocked?: boolean }) => {
-      const { data } = await api.put(`/menu/${id}`, updates);
+    mutationFn: async ({ id, items, isLocked }: { id: string; items?: { name: string; notes?: string }[]; isLocked?: boolean }) => {
+      const { data } = await api.put(`/menu/${id}`, { items, isLocked });
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todayMenu'] });
+      queryClient.invalidateQueries({ queryKey: ['menu'] });
       queryClient.invalidateQueries({ queryKey: ['history'] });
     },
   });
@@ -57,7 +68,7 @@ export function useDeleteMenu() {
       await api.delete(`/menu/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todayMenu'] });
+      queryClient.invalidateQueries({ queryKey: ['menu'] });
       queryClient.invalidateQueries({ queryKey: ['history'] });
     },
   });
@@ -72,7 +83,8 @@ export function useCreateSelection() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todayMenu'] });
+      queryClient.invalidateQueries({ queryKey: ['menu'] });
+      queryClient.invalidateQueries({ queryKey: ['history'] });
     },
   });
 }
@@ -90,18 +102,24 @@ export function useDeleteSelection() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todayMenu'] });
+      queryClient.invalidateQueries({ queryKey: ['menu'] });
+      queryClient.invalidateQueries({ queryKey: ['history'] });
     },
   });
 }
 
 export function useHistory() {
-  return useQuery<HistoryMenu[]>({
+  return useInfiniteQuery({
     queryKey: ['history'],
-    queryFn: async () => {
-      const { data } = await api.get('/history');
+    queryFn: async ({ pageParam }) => {
+      const params = new URLSearchParams();
+      params.set('limit', '10');
+      if (pageParam) params.set('cursor', pageParam);
+      const { data } = await api.get(`/history?${params.toString()}`);
       return data;
     },
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => lastPage.hasMore ? lastPage.nextCursor : undefined,
   });
 }
 
@@ -125,7 +143,8 @@ export function useConfirmPayment() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todayMenu'] });
+      queryClient.invalidateQueries({ queryKey: ['menu'] });
+      queryClient.invalidateQueries({ queryKey: ['history'] });
     },
   });
 }
@@ -142,7 +161,8 @@ export function useCancelPayment() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todayMenu'] });
+      queryClient.invalidateQueries({ queryKey: ['menu'] });
+      queryClient.invalidateQueries({ queryKey: ['history'] });
     },
   });
 }
@@ -156,7 +176,7 @@ export function useConfirmAllPayments() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todayMenu'] });
+      queryClient.invalidateQueries({ queryKey: ['menu'] });
       queryClient.invalidateQueries({ queryKey: ['history'] });
     },
   });
@@ -174,7 +194,7 @@ export function useCancelAllPayments() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['todayMenu'] });
+      queryClient.invalidateQueries({ queryKey: ['menu'] });
       queryClient.invalidateQueries({ queryKey: ['history'] });
     },
   });

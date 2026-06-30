@@ -41,18 +41,18 @@ export default function MenuCard({ menu, onEdit, isLoading }: MenuCardProps) {
           {menu.isLocked && (
             <Chip
               icon={<LockIcon />}
-              label="Đã chốt"
+              label="Locked"
               color="error"
               size="small"
             />
           )}
         </Box>
 
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-          Ngày: {formattedDate}
-        </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Người tạo: <strong>{menu.creatorName}</strong>
+          Menu: <strong>{menu.creatorName}</strong>
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+          Ngày tạo: {formattedDate}
         </Typography>
 
         <Divider sx={{ my: 2 }} />
