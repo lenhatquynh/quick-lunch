@@ -35,7 +35,7 @@ export default function MenuCard({ menu, onEdit, isLoading }: MenuCardProps) {
     <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <CardContent sx={{ flexGrow: 1 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6" component="h2" sx={{ fontSize: '24px' }}>
+          <Typography variant="h6" component="h2" sx={{ fontSize: '22px', fontWeight: 'bold' }}>
             📋 Menu hôm nay
           </Typography>
           {menu.isLocked && (

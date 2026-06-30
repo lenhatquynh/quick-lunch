@@ -193,22 +193,23 @@ export default function MenuDetailPage() {
           gap: 1,
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 1, width: "100%" }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            gap: 1,
+            width: "100%",
+          }}
+        >
           <Button
             variant="outlined"
+            size="small"
             startIcon={<ArrowBackIcon />}
             onClick={() => router.back()}
           >
             Back
           </Button>
-          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "flex-end", justifyContent: "center" }}>
-            <Typography variant="h6" component="h1" sx={{ fontWeight: "bold" }}>
-              {menu.creatorName}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-              {formattedDate}
-            </Typography>
-          </Box>
         </Box>
       </Box>
 

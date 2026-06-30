@@ -146,7 +146,7 @@ export default function SummaryCard({
             mb: 2,
           }}
         >
-          <Typography variant="h6" component="h2">
+          <Typography variant="h6" component="h2" sx={{ fontSize: '22px', fontWeight: 'bold' }}>
             📊 Tổng kết
           </Typography>
         </Box>

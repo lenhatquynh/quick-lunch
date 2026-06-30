@@ -156,7 +156,7 @@ export default function MenuPage() {
                         mb: 1,
                       }}
                     >
-                      <Typography variant="h6">
+                      <Typography variant="body2">
                         Menu: <strong>{menu.creatorName}</strong>
                       </Typography>
                       <Chip
