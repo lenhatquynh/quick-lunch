@@ -11,6 +11,7 @@ import {
   Snackbar,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -114,6 +115,15 @@ export default function MenuDetailPage() {
     setSnackbar({ open: true, message, severity });
   };
 
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      showSnackbar("Đã copy link!", "success");
+    } catch {
+      showSnackbar("Không thể copy link", "error");
+    }
+  };
+
   const existingNames = menu
     ? [
         ...new Set(
@@ -209,6 +219,14 @@ export default function MenuDetailPage() {
             onClick={() => router.back()}
           >
             Back
+          </Button>
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<ContentCopyIcon />}
+            onClick={handleCopyLink}
+          >
+            Copy Link
           </Button>
         </Box>
       </Box>
