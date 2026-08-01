@@ -216,7 +216,13 @@ export default function MenuDetailPage() {
             variant="outlined"
             size="small"
             startIcon={<ArrowBackIcon />}
-            onClick={() => router.back()}
+            onClick={() => {
+              if (window.history.length > 2) {
+                router.back();
+              } else {
+                router.push("/menu");
+              }
+            }}
           >
             Back
           </Button>
