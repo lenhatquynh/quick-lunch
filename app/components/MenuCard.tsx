@@ -58,40 +58,49 @@ export default function MenuCard({ menu, onEdit, isLoading }: MenuCardProps) {
         <Divider sx={{ my: 2 }} />
 
         <Typography variant="subtitle2" gutterBottom>
-          Danh sách món ({menu.items.length} món):
+          Danh sách món ({menu.items.filter((i) => !i.isArchived).length} món):
         </Typography>
 
         <List dense disablePadding>
-          {menu.items.map((item, index) => (
-            <ListItem key={item.id} disablePadding sx={{ py: 0.5 }}>
-              <ListItemText
-                primary={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Typography
-                      component="span"
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ minWidth: 20 }}
-                    >
-                      {index + 1}.
-                    </Typography>
-                    <Typography component="span" variant="body1">
-                      {item.name}
-                    </Typography>
-                    {item.notes && (
+          {menu.items
+            .filter((item) => !item.isArchived)
+            .map((item, index) => (
+              <ListItem key={item.id} disablePadding sx={{ py: 0.5 }}>
+                <ListItemText
+                  primary={
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Typography
                         component="span"
                         variant="body2"
                         color="text.secondary"
+                        sx={{ minWidth: 20 }}
                       >
-                        + {item.notes}
+                        {index + 1}.
                       </Typography>
-                    )}
-                  </Box>
-                }
-              />
-            </ListItem>
-          ))}
+                      <Typography component="span" variant="body1">
+                        {item.name}
+                      </Typography>
+                      {item.notes && (
+                        <Typography
+                          component="span"
+                          variant="body2"
+                          color="text.secondary"
+                        >
+                          + {item.notes}
+                        </Typography>
+                      )}
+                      {item.maxQuantity !== null && (
+                        <Chip
+                          size="small"
+                          variant="outlined"
+                          label={`Tối đa ${item.maxQuantity}`}
+                        />
+                      )}
+                    </Box>
+                  }
+                />
+              </ListItem>
+            ))}
         </List>
       </CardContent>
 

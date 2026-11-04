@@ -49,11 +49,17 @@ export async function POST(request: Request) {
         date: menuDate,
         creatorName,
         items: {
-          create: items.map((item: { name: string; notes?: string }, index: number) => ({
-            name: item.name,
-            notes: item.notes || null,
-            sortOrder: index,
-          })),
+          create: items.map(
+            (item: { name: string; notes?: string; maxQuantity?: number | null }, index: number) => ({
+              name: item.name.trim(),
+              notes: item.notes || null,
+              maxQuantity:
+                item.maxQuantity === null || item.maxQuantity === undefined
+                  ? null
+                  : Math.max(1, Math.floor(Number(item.maxQuantity))),
+              sortOrder: index,
+            })
+          ),
         },
       },
       include: {

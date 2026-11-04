@@ -32,6 +32,12 @@ interface SummaryCardProps {
 
 type ViewMode = "default" | "byPerson";
 
+// Định dạng tên người kèm note: "Quỳnh (cơm ít)"
+function formatPerson(personName: string, note?: string | null) {
+  const trimmed = note?.trim();
+  return trimmed ? `${personName} (${trimmed})` : personName;
+}
+
 export default function SummaryCard({
   items,
   isLocked,
@@ -46,7 +52,7 @@ export default function SummaryCard({
     return items
       .filter((item) => item.selections.length > 0)
       .map((item) => {
-        const people = item.selections.map((s) => s.personName);
+        const people = item.selections.map((s) => formatPerson(s.personName, s.note));
         const groupedPeople = Array.from(
           people.reduce((acc, name) => {
             acc.set(name, (acc.get(name) || 0) + 1);
@@ -58,6 +64,7 @@ export default function SummaryCard({
           itemId: item.id,
           itemName: item.name,
           totalCount: item.selections.length,
+          maxQuantity: item.maxQuantity,
           notes: item.notes,
           people: groupedPeople,
         };
@@ -77,11 +84,12 @@ export default function SummaryCard({
           personMap.set(selection.personName, new Map());
         }
         const itemMap = personMap.get(selection.personName)!;
-        const existing = itemMap.get(item.name);
+        const key = item.name;
+        const existing = itemMap.get(key);
         if (existing) {
           existing.count += 1;
         } else {
-          itemMap.set(item.name, { notes: item.notes, count: 1 });
+          itemMap.set(key, { notes: item.notes, count: 1 });
         }
       });
     });
@@ -96,10 +104,27 @@ export default function SummaryCard({
           }),
         );
         const totalItems = selections.reduce((acc, s) => acc + s.count, 0);
+        // Note của người (có thể khác nhau theo từng món)
+        const personNotes = Array.from(
+          new Set(
+            items
+              .flatMap((item) =>
+                item.selections
+                  .filter(
+                    (s) =>
+                      s.personName === personName &&
+                      s.note &&
+                      s.note.trim(),
+                  )
+                  .map((s) => s.note!.trim()),
+              ),
+          ),
+        );
         return {
           personName,
           selections,
           totalItems,
+          notes: personNotes,
         };
       })
       .sort((a, b) => b.totalItems - a.totalItems);
@@ -117,7 +142,7 @@ export default function SummaryCard({
       return personSummary
         .map(
           (person) =>
-            `${person.personName}: ${person.selections
+            `${formatPerson(person.personName, person.notes.join(", "))}: ${person.selections
               .map(
                 (s) =>
                   `${s.count} ${s.itemName}${s.notes ? ` + ${s.notes}` : ""}`,
@@ -218,6 +243,17 @@ export default function SummaryCard({
                     {item.people.join(", ")}
                   </Typography>
                 </Box>
+                {item.maxQuantity !== null && (
+                  <Chip
+                    label={`${item.totalCount}/${item.maxQuantity}`}
+                    size="small"
+                    variant="outlined"
+                    color={
+                      item.totalCount >= item.maxQuantity ? "error" : "default"
+                    }
+                    sx={{ mt: 0.25 }}
+                  />
+                )}
               </Box>
             ))}
           </Box>
@@ -248,6 +284,17 @@ export default function SummaryCard({
                     }}
                   >
                     {person.personName}
+                    {person.notes.length > 0 && (
+                      <Typography
+                        component="span"
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ fontWeight: "normal" }}
+                      >
+                        {" "}
+                        ({person.notes.join(", ")})
+                      </Typography>
+                    )}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     {person.selections

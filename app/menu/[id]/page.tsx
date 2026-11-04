@@ -62,15 +62,18 @@ export default function MenuDetailPage() {
     menuItemId: string,
     personName: string,
     quantity: number = 1,
+    note?: string | null,
   ) => {
     setCurrentPersonName(personName);
     try {
-      for (let i = 0; i < quantity; i++) {
-        await createSelection.mutateAsync({ menuItemId, personName });
-      }
+      await createSelection.mutateAsync({ menuItemId, personName, quantity, note });
       showSnackbar(`Added ${quantity} selections!`, "success");
-    } catch {
-      showSnackbar("Không thể thêm lựa chọn", "error");
+    } catch (error) {
+      const message =
+        error instanceof Error && "message" in error
+          ? (error as { message?: string }).message
+          : "Không thể thêm lựa chọn";
+      showSnackbar(message || "Không thể thêm lựa chọn", "error");
     }
   };
 

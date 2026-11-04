@@ -22,19 +22,27 @@ model Menu {
 }
 
 model MenuItem {
-  id         String      @id @default(cuid())
-  menuId     String
-  name       String
-  notes      String?
-  sortOrder  Int         @default(autoincrement())
-  menu       Menu        @relation(fields: [menuId], references: [id], onDelete: Cascade)
-  selections Selection[]
+  id          String      @id @default(cuid())
+  menuId      String
+  name        String
+  notes       String?
+  /// Số lượng tối đa được chọn. null = không giới hạn
+  maxQuantity Int?
+  /// Món đã bị gỡ khỏi menu nhưng vẫn giữ lựa chọn của người dùng
+  isArchived  Boolean     @default(false)
+  sortOrder   Int         @default(autoincrement())
+  menu        Menu        @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  selections  Selection[]
+
+  @@index([menuId, isArchived])
 }
 
 model Selection {
   id         String    @id @default(cuid())
   menuItemId String
   personName String
+  /// Ghi chú riêng của người chọn cho món này (VD: cơm ít, nhiều cơm)
+  note       String?
   isPaid     Boolean   @default(false)
   paidAt     DateTime?
   createdAt  DateTime  @default(now())

@@ -73,7 +73,7 @@ export async function GET(request: Request) {
         date: menu.date.toISOString().split('T')[0],
         creatorName: menu.creatorName,
         isLocked: menu.isLocked,
-        totalItems: menu.items.length,
+        totalItems: menu.items.filter((item) => !item.isArchived).length,
         totalSelections: allSelections.length,
         totalPeople: personMap.size,
         paidSelections: paidPeople,

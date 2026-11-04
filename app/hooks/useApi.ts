@@ -49,7 +49,15 @@ export function useUpdateMenu() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, items, isLocked }: { id: string; items?: { name: string; notes?: string }[]; isLocked?: boolean }) => {
+    mutationFn: async ({
+      id,
+      items,
+      isLocked,
+    }: {
+      id: string;
+      items?: { id?: string; name: string; notes?: string; maxQuantity?: number | null }[];
+      isLocked?: boolean;
+    }) => {
       const { data } = await api.put(`/menu/${id}`, { items, isLocked });
       return data;
     },
@@ -79,8 +87,18 @@ export function useCreateSelection() {
 
   return useMutation({
     mutationFn: async (selectionData: CreateSelectionRequest) => {
-      const { data } = await api.post('/selection', selectionData);
-      return data;
+      try {
+        const { data } = await api.post('/selection', selectionData);
+        return data;
+      } catch (error) {
+        const axiosError = error as {
+          response?: { data?: { error?: string } };
+        };
+        if (axiosError?.response?.data?.error) {
+          throw new Error(axiosError.response.data.error);
+        }
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['menu'] });

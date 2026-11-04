@@ -135,6 +135,8 @@ exports.Prisma.MenuItemScalarFieldEnum = {
   menuId: 'menuId',
   name: 'name',
   notes: 'notes',
+  maxQuantity: 'maxQuantity',
+  isArchived: 'isArchived',
   sortOrder: 'sortOrder'
 };
 
@@ -142,6 +144,7 @@ exports.Prisma.SelectionScalarFieldEnum = {
   id: 'id',
   menuItemId: 'menuItemId',
   personName: 'personName',
+  note: 'note',
   isPaid: 'isPaid',
   paidAt: 'paidAt',
   createdAt: 'createdAt'

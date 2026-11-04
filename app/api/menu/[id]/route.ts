@@ -53,7 +53,17 @@ export async function PUT(request: Request, { params }: { params: Params }) {
       );
     }
 
-    const updateData: { isLocked?: boolean; items?: { create: { name: string; notes: string | null; sortOrder: number }[] } } = {};
+    const updateData: {
+      isLocked?: boolean;
+      items?: {
+        create: {
+          name: string;
+          notes: string | null;
+          maxQuantity: number | null;
+          sortOrder: number;
+        }[];
+      };
+    } = {};
 
     if (typeof isLocked === 'boolean') {
       updateData.isLocked = isLocked;
@@ -66,30 +76,47 @@ export async function PUT(request: Request, { params }: { params: Params }) {
         include: { selections: true },
       });
 
-      // Map existing items by name for matching
-      const existingItemsByName = new Map(
-        existingItems.map((item) => [item.name.toLowerCase(), item])
-      );
+      // Map existing items by id (preferred) and by name (fallback) for matching
+      const existingItemsById = new Map(existingItems.map((item) => [item.id, item]));
+      // Ưu tiên món chưa bị gỡ; nếu không có thì dùng món đã gỡ để khôi phục lại
+      // (giữ nguyên lựa chọn của người dùng thay vì tạo món mới)
+      const existingItemsByName = new Map<string, (typeof existingItems)[number]>();
+      for (const item of existingItems) {
+        const key = item.name.trim().toLowerCase();
+        const current = existingItemsByName.get(key);
+        if (!current || (current.isArchived && !item.isArchived)) {
+          existingItemsByName.set(key, item);
+        }
+      }
 
       // Process new items: update existing ones, create new ones
       const updates: Promise<unknown>[] = [];
-      const newItemNames: string[] = [];
+      const keptItemIds: string[] = [];
 
       for (let index = 0; index < items.length; index++) {
         const newItem = items[index];
-        newItemNames.push(newItem.name.toLowerCase());
+        const maxQuantity =
+          newItem.maxQuantity === null || newItem.maxQuantity === undefined
+            ? null
+            : Math.max(1, Math.floor(Number(newItem.maxQuantity)));
 
-        const existingItem = existingItemsByName.get(newItem.name.toLowerCase());
+        // Match by id first, then by name (case-insensitive)
+        const existingItem =
+          (newItem.id ? existingItemsById.get(newItem.id) : undefined) ??
+          existingItemsByName.get(newItem.name.trim().toLowerCase());
 
         if (existingItem) {
-          // Update existing item (keep selections via cascade)
+          keptItemIds.push(existingItem.id);
+          // Update existing item (keep selections)
           updates.push(
             prisma.menuItem.update({
               where: { id: existingItem.id },
               data: {
-                name: newItem.name,
+                name: newItem.name.trim(),
                 notes: newItem.notes || null,
+                maxQuantity,
                 sortOrder: index,
+                isArchived: false,
               },
             })
           );
@@ -99,8 +126,9 @@ export async function PUT(request: Request, { params }: { params: Params }) {
             prisma.menuItem.create({
               data: {
                 menuId: id,
-                name: newItem.name,
+                name: newItem.name.trim(),
                 notes: newItem.notes || null,
+                maxQuantity,
                 sortOrder: index,
               },
             })
@@ -108,16 +136,17 @@ export async function PUT(request: Request, { params }: { params: Params }) {
         }
       }
 
-      // Delete items that are no longer in the new menu (cascades their selections)
-      const itemsToDelete = existingItems.filter(
-        (item) => !newItemNames.includes(item.name.toLowerCase())
+      // Archive items that are no longer in the new menu (soft delete, keeps selections)
+      const itemsToArchive = existingItems.filter(
+        (item) => !item.isArchived && !keptItemIds.includes(item.id)
       );
-      if (itemsToDelete.length > 0) {
+      if (itemsToArchive.length > 0) {
         updates.push(
-          prisma.menuItem.deleteMany({
+          prisma.menuItem.updateMany({
             where: {
-              id: { in: itemsToDelete.map((item) => item.id) },
+              id: { in: itemsToArchive.map((item) => item.id) },
             },
+            data: { isArchived: true },
           })
         );
       }

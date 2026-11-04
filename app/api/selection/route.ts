@@ -4,7 +4,7 @@ import { prisma } from '../../lib/prisma';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { menuItemId, personName, quantity = 1 } = body;
+    const { menuItemId, personName, quantity = 1, note } = body;
 
     if (!menuItemId || !personName) {
       return NextResponse.json(
@@ -17,6 +17,7 @@ export async function POST(request: Request) {
       where: { id: menuItemId },
       include: {
         menu: true,
+        selections: true,
       },
     });
 
@@ -31,12 +32,46 @@ export async function POST(request: Request) {
       );
     }
 
+    if (menuItem.isArchived) {
+      return NextResponse.json(
+        { error: 'This item has been removed from the menu' },
+        { status: 400 }
+      );
+    }
+
+    const requestedQty = Math.max(1, Math.floor(Number(quantity) || 1));
+
+    // Enforce max quantity limit (null = unlimited)
+    if (menuItem.maxQuantity !== null) {
+      const currentCount = menuItem.selections.length;
+      if (currentCount >= menuItem.maxQuantity) {
+        return NextResponse.json(
+          {
+            error: `Đã đạt giới hạn số lượng cho món này (tối đa ${menuItem.maxQuantity})`,
+          },
+          { status: 400 }
+        );
+      }
+      if (currentCount + requestedQty > menuItem.maxQuantity) {
+        const remaining = menuItem.maxQuantity - currentCount;
+        return NextResponse.json(
+          {
+            error: `Chỉ còn ${remaining} suất cho món này (tối đa ${menuItem.maxQuantity})`,
+          },
+          { status: 400 }
+        );
+      }
+    }
+
+    const trimmedNote = note && String(note).trim() ? String(note).trim() : null;
+
     const selections = await Promise.all(
-      Array.from({ length: quantity }, () =>
+      Array.from({ length: requestedQty }, () =>
         prisma.selection.create({
           data: {
             menuItemId,
             personName,
+            note: trimmedNote,
           },
         })
       )

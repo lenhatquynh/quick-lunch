@@ -26,8 +26,10 @@ interface CreateMenuDialogProps {
 }
 
 interface MenuItemInput {
+  id?: string;
   name: string;
   notes?: string;
+  maxQuantity?: number | null;
 }
 
 export default function CreateMenuDialog({
@@ -65,10 +67,14 @@ function MenuForm({
   const [creatorName, setCreatorName] = useState(editMenu?.creatorName ?? "");
   const [items, setItems] = useState<MenuItemInput[]>(
     editMenu
-      ? editMenu.items.map((item) => ({
-          name: item.name,
-          notes: item.notes || undefined,
-        }))
+      ? editMenu.items
+          .filter((item) => !item.isArchived)
+          .map((item) => ({
+              id: item.id,
+              name: item.name,
+              notes: item.notes || undefined,
+              maxQuantity: item.maxQuantity ?? null,
+            }))
       : [{ name: "" }, { name: "" }, { name: "" }],
   );
   const [error, setError] = useState("");
@@ -96,12 +102,14 @@ function MenuForm({
 
   const handleItemChange = (
     index: number,
-    field: "name" | "notes",
+    field: "name" | "notes" | "maxQuantity",
     value: string,
   ) => {
     const newItems = [...items];
     if (field === "name") {
       newItems[index].name = value;
+    } else if (field === "maxQuantity") {
+      newItems[index].maxQuantity = value.trim() ? Math.max(1, parseInt(value, 10)) : null;
     } else {
       newItems[index].notes = value;
     }
@@ -112,10 +120,19 @@ function MenuForm({
     const lines = text.split("\n").filter((line) => line.trim());
     return lines.map((line) => {
       const cleaned = line.replace(/^\d+[\/\.\-\)]\s*/, "").trim();
-      const parts = cleaned.split("+").map((p) => p.trim());
+      // Hỗ trợ giới hạn số lượng dạng "Tên món x5" hoặc "Tên món (max 5)"
+      let maxQuantity: number | null = null;
+      let namePart = cleaned;
+      const maxMatch = cleaned.match(/\s*x(\d+)\s*$/i) || cleaned.match(/\s*\(max\s*(\d+)\)\s*$/i);
+      if (maxMatch) {
+        maxQuantity = Math.max(1, parseInt(maxMatch[1], 10));
+        namePart = cleaned.slice(0, maxMatch.index).trim();
+      }
+      const parts = namePart.split("+").map((p) => p.trim());
       return {
         name: parts[0],
         notes: parts.length > 1 ? parts.slice(1).join(" + ") : undefined,
+        maxQuantity,
       };
     });
   };
@@ -188,7 +205,7 @@ function MenuForm({
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
       {!isEditMode && (
         <TextField
           label="Menu"
@@ -204,13 +221,9 @@ function MenuForm({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          mb: 1,
         }}
       >
         <Typography variant="subtitle1">Danh sách món</Typography>
-        <Button size="small" onClick={handleBulkPasteOpen}>
-          Dán Menu
-        </Button>
       </Box>
 
       <Paper
@@ -240,6 +253,18 @@ function MenuForm({
                   handleItemChange(index, "notes", e.target.value)
                 }
                 sx={{ flex: 1 }}
+              />
+              <TextField
+                size="small"
+                type="number"
+                label="Tối đa"
+                placeholder="∞"
+                value={item.maxQuantity ?? ""}
+                onChange={(e) =>
+                  handleItemChange(index, "maxQuantity", e.target.value)
+                }
+                slotProps={{ htmlInput: { min: 1 } }}
+                sx={{ width: 90 }}
               />
               <IconButton
                 size="small"
@@ -300,7 +325,8 @@ function MenuForm({
             color="text.secondary"
             sx={{ mt: 1, display: "block" }}
           >
-            Hỗ trợ: số thứ tự (1/, 1., 1-), ghi chú (+ nước mắm)
+            Hỗ trợ: số thứ tự (1/, 1., 1-), ghi chú (+ nước mắm), giới hạn số
+            lượng (x5 hoặc (max 5))
           </Typography>
         </DialogContent>
         <DialogActions>

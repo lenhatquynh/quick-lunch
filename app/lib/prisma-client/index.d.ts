@@ -2200,10 +2200,12 @@ export namespace Prisma {
   }
 
   export type MenuItemAvgAggregateOutputType = {
+    maxQuantity: number | null
     sortOrder: number | null
   }
 
   export type MenuItemSumAggregateOutputType = {
+    maxQuantity: number | null
     sortOrder: number | null
   }
 
@@ -2212,6 +2214,8 @@ export namespace Prisma {
     menuId: string | null
     name: string | null
     notes: string | null
+    maxQuantity: number | null
+    isArchived: boolean | null
     sortOrder: number | null
   }
 
@@ -2220,6 +2224,8 @@ export namespace Prisma {
     menuId: string | null
     name: string | null
     notes: string | null
+    maxQuantity: number | null
+    isArchived: boolean | null
     sortOrder: number | null
   }
 
@@ -2228,16 +2234,20 @@ export namespace Prisma {
     menuId: number
     name: number
     notes: number
+    maxQuantity: number
+    isArchived: number
     sortOrder: number
     _all: number
   }
 
 
   export type MenuItemAvgAggregateInputType = {
+    maxQuantity?: true
     sortOrder?: true
   }
 
   export type MenuItemSumAggregateInputType = {
+    maxQuantity?: true
     sortOrder?: true
   }
 
@@ -2246,6 +2256,8 @@ export namespace Prisma {
     menuId?: true
     name?: true
     notes?: true
+    maxQuantity?: true
+    isArchived?: true
     sortOrder?: true
   }
 
@@ -2254,6 +2266,8 @@ export namespace Prisma {
     menuId?: true
     name?: true
     notes?: true
+    maxQuantity?: true
+    isArchived?: true
     sortOrder?: true
   }
 
@@ -2262,6 +2276,8 @@ export namespace Prisma {
     menuId?: true
     name?: true
     notes?: true
+    maxQuantity?: true
+    isArchived?: true
     sortOrder?: true
     _all?: true
   }
@@ -2357,6 +2373,8 @@ export namespace Prisma {
     menuId: string
     name: string
     notes: string | null
+    maxQuantity: number | null
+    isArchived: boolean
     sortOrder: number
     _count: MenuItemCountAggregateOutputType | null
     _avg: MenuItemAvgAggregateOutputType | null
@@ -2384,6 +2402,8 @@ export namespace Prisma {
     menuId?: boolean
     name?: boolean
     notes?: boolean
+    maxQuantity?: boolean
+    isArchived?: boolean
     sortOrder?: boolean
     menu?: boolean | MenuDefaultArgs<ExtArgs>
     selections?: boolean | MenuItem$selectionsArgs<ExtArgs>
@@ -2395,6 +2415,8 @@ export namespace Prisma {
     menuId?: boolean
     name?: boolean
     notes?: boolean
+    maxQuantity?: boolean
+    isArchived?: boolean
     sortOrder?: boolean
     menu?: boolean | MenuDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["menuItem"]>
@@ -2404,6 +2426,8 @@ export namespace Prisma {
     menuId?: boolean
     name?: boolean
     notes?: boolean
+    maxQuantity?: boolean
+    isArchived?: boolean
     sortOrder?: boolean
     menu?: boolean | MenuDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["menuItem"]>
@@ -2413,10 +2437,12 @@ export namespace Prisma {
     menuId?: boolean
     name?: boolean
     notes?: boolean
+    maxQuantity?: boolean
+    isArchived?: boolean
     sortOrder?: boolean
   }
 
-  export type MenuItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "menuId" | "name" | "notes" | "sortOrder", ExtArgs["result"]["menuItem"]>
+  export type MenuItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "menuId" | "name" | "notes" | "maxQuantity" | "isArchived" | "sortOrder", ExtArgs["result"]["menuItem"]>
   export type MenuItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     menu?: boolean | MenuDefaultArgs<ExtArgs>
     selections?: boolean | MenuItem$selectionsArgs<ExtArgs>
@@ -2440,6 +2466,14 @@ export namespace Prisma {
       menuId: string
       name: string
       notes: string | null
+      /**
+       * Số lượng tối đa được chọn. null = không giới hạn
+       */
+      maxQuantity: number | null
+      /**
+       * Món đã bị gỡ khỏi menu nhưng vẫn giữ lựa chọn của người dùng
+       */
+      isArchived: boolean
       sortOrder: number
     }, ExtArgs["result"]["menuItem"]>
     composites: {}
@@ -2870,6 +2904,8 @@ export namespace Prisma {
     readonly menuId: FieldRef<"MenuItem", 'String'>
     readonly name: FieldRef<"MenuItem", 'String'>
     readonly notes: FieldRef<"MenuItem", 'String'>
+    readonly maxQuantity: FieldRef<"MenuItem", 'Int'>
+    readonly isArchived: FieldRef<"MenuItem", 'Boolean'>
     readonly sortOrder: FieldRef<"MenuItem", 'Int'>
   }
     
@@ -3323,6 +3359,7 @@ export namespace Prisma {
     id: string | null
     menuItemId: string | null
     personName: string | null
+    note: string | null
     isPaid: boolean | null
     paidAt: Date | null
     createdAt: Date | null
@@ -3332,6 +3369,7 @@ export namespace Prisma {
     id: string | null
     menuItemId: string | null
     personName: string | null
+    note: string | null
     isPaid: boolean | null
     paidAt: Date | null
     createdAt: Date | null
@@ -3341,6 +3379,7 @@ export namespace Prisma {
     id: number
     menuItemId: number
     personName: number
+    note: number
     isPaid: number
     paidAt: number
     createdAt: number
@@ -3352,6 +3391,7 @@ export namespace Prisma {
     id?: true
     menuItemId?: true
     personName?: true
+    note?: true
     isPaid?: true
     paidAt?: true
     createdAt?: true
@@ -3361,6 +3401,7 @@ export namespace Prisma {
     id?: true
     menuItemId?: true
     personName?: true
+    note?: true
     isPaid?: true
     paidAt?: true
     createdAt?: true
@@ -3370,6 +3411,7 @@ export namespace Prisma {
     id?: true
     menuItemId?: true
     personName?: true
+    note?: true
     isPaid?: true
     paidAt?: true
     createdAt?: true
@@ -3452,6 +3494,7 @@ export namespace Prisma {
     id: string
     menuItemId: string
     personName: string
+    note: string | null
     isPaid: boolean
     paidAt: Date | null
     createdAt: Date
@@ -3478,6 +3521,7 @@ export namespace Prisma {
     id?: boolean
     menuItemId?: boolean
     personName?: boolean
+    note?: boolean
     isPaid?: boolean
     paidAt?: boolean
     createdAt?: boolean
@@ -3488,6 +3532,7 @@ export namespace Prisma {
     id?: boolean
     menuItemId?: boolean
     personName?: boolean
+    note?: boolean
     isPaid?: boolean
     paidAt?: boolean
     createdAt?: boolean
@@ -3498,6 +3543,7 @@ export namespace Prisma {
     id?: boolean
     menuItemId?: boolean
     personName?: boolean
+    note?: boolean
     isPaid?: boolean
     paidAt?: boolean
     createdAt?: boolean
@@ -3508,12 +3554,13 @@ export namespace Prisma {
     id?: boolean
     menuItemId?: boolean
     personName?: boolean
+    note?: boolean
     isPaid?: boolean
     paidAt?: boolean
     createdAt?: boolean
   }
 
-  export type SelectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "menuItemId" | "personName" | "isPaid" | "paidAt" | "createdAt", ExtArgs["result"]["selection"]>
+  export type SelectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "menuItemId" | "personName" | "note" | "isPaid" | "paidAt" | "createdAt", ExtArgs["result"]["selection"]>
   export type SelectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     menuItem?: boolean | MenuItemDefaultArgs<ExtArgs>
   }
@@ -3533,6 +3580,10 @@ export namespace Prisma {
       id: string
       menuItemId: string
       personName: string
+      /**
+       * Ghi chú riêng của người chọn cho món này (VD: cơm ít, nhiều cơm)
+       */
+      note: string | null
       isPaid: boolean
       paidAt: Date | null
       createdAt: Date
@@ -3963,6 +4014,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Selection", 'String'>
     readonly menuItemId: FieldRef<"Selection", 'String'>
     readonly personName: FieldRef<"Selection", 'String'>
+    readonly note: FieldRef<"Selection", 'String'>
     readonly isPaid: FieldRef<"Selection", 'Boolean'>
     readonly paidAt: FieldRef<"Selection", 'DateTime'>
     readonly createdAt: FieldRef<"Selection", 'DateTime'>
@@ -4411,6 +4463,8 @@ export namespace Prisma {
     menuId: 'menuId',
     name: 'name',
     notes: 'notes',
+    maxQuantity: 'maxQuantity',
+    isArchived: 'isArchived',
     sortOrder: 'sortOrder'
   };
 
@@ -4421,6 +4475,7 @@ export namespace Prisma {
     id: 'id',
     menuItemId: 'menuItemId',
     personName: 'personName',
+    note: 'note',
     isPaid: 'isPaid',
     paidAt: 'paidAt',
     createdAt: 'createdAt'
@@ -4592,6 +4647,8 @@ export namespace Prisma {
     menuId?: StringFilter<"MenuItem"> | string
     name?: StringFilter<"MenuItem"> | string
     notes?: StringNullableFilter<"MenuItem"> | string | null
+    maxQuantity?: IntNullableFilter<"MenuItem"> | number | null
+    isArchived?: BoolFilter<"MenuItem"> | boolean
     sortOrder?: IntFilter<"MenuItem"> | number
     menu?: XOR<MenuScalarRelationFilter, MenuWhereInput>
     selections?: SelectionListRelationFilter
@@ -4602,6 +4659,8 @@ export namespace Prisma {
     menuId?: SortOrder
     name?: SortOrder
     notes?: SortOrderInput | SortOrder
+    maxQuantity?: SortOrderInput | SortOrder
+    isArchived?: SortOrder
     sortOrder?: SortOrder
     menu?: MenuOrderByWithRelationInput
     selections?: SelectionOrderByRelationAggregateInput
@@ -4615,6 +4674,8 @@ export namespace Prisma {
     menuId?: StringFilter<"MenuItem"> | string
     name?: StringFilter<"MenuItem"> | string
     notes?: StringNullableFilter<"MenuItem"> | string | null
+    maxQuantity?: IntNullableFilter<"MenuItem"> | number | null
+    isArchived?: BoolFilter<"MenuItem"> | boolean
     sortOrder?: IntFilter<"MenuItem"> | number
     menu?: XOR<MenuScalarRelationFilter, MenuWhereInput>
     selections?: SelectionListRelationFilter
@@ -4625,6 +4686,8 @@ export namespace Prisma {
     menuId?: SortOrder
     name?: SortOrder
     notes?: SortOrderInput | SortOrder
+    maxQuantity?: SortOrderInput | SortOrder
+    isArchived?: SortOrder
     sortOrder?: SortOrder
     _count?: MenuItemCountOrderByAggregateInput
     _avg?: MenuItemAvgOrderByAggregateInput
@@ -4641,6 +4704,8 @@ export namespace Prisma {
     menuId?: StringWithAggregatesFilter<"MenuItem"> | string
     name?: StringWithAggregatesFilter<"MenuItem"> | string
     notes?: StringNullableWithAggregatesFilter<"MenuItem"> | string | null
+    maxQuantity?: IntNullableWithAggregatesFilter<"MenuItem"> | number | null
+    isArchived?: BoolWithAggregatesFilter<"MenuItem"> | boolean
     sortOrder?: IntWithAggregatesFilter<"MenuItem"> | number
   }
 
@@ -4651,6 +4716,7 @@ export namespace Prisma {
     id?: StringFilter<"Selection"> | string
     menuItemId?: StringFilter<"Selection"> | string
     personName?: StringFilter<"Selection"> | string
+    note?: StringNullableFilter<"Selection"> | string | null
     isPaid?: BoolFilter<"Selection"> | boolean
     paidAt?: DateTimeNullableFilter<"Selection"> | Date | string | null
     createdAt?: DateTimeFilter<"Selection"> | Date | string
@@ -4661,6 +4727,7 @@ export namespace Prisma {
     id?: SortOrder
     menuItemId?: SortOrder
     personName?: SortOrder
+    note?: SortOrderInput | SortOrder
     isPaid?: SortOrder
     paidAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -4674,6 +4741,7 @@ export namespace Prisma {
     NOT?: SelectionWhereInput | SelectionWhereInput[]
     menuItemId?: StringFilter<"Selection"> | string
     personName?: StringFilter<"Selection"> | string
+    note?: StringNullableFilter<"Selection"> | string | null
     isPaid?: BoolFilter<"Selection"> | boolean
     paidAt?: DateTimeNullableFilter<"Selection"> | Date | string | null
     createdAt?: DateTimeFilter<"Selection"> | Date | string
@@ -4684,6 +4752,7 @@ export namespace Prisma {
     id?: SortOrder
     menuItemId?: SortOrder
     personName?: SortOrder
+    note?: SortOrderInput | SortOrder
     isPaid?: SortOrder
     paidAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -4699,6 +4768,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Selection"> | string
     menuItemId?: StringWithAggregatesFilter<"Selection"> | string
     personName?: StringWithAggregatesFilter<"Selection"> | string
+    note?: StringNullableWithAggregatesFilter<"Selection"> | string | null
     isPaid?: BoolWithAggregatesFilter<"Selection"> | boolean
     paidAt?: DateTimeNullableWithAggregatesFilter<"Selection"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Selection"> | Date | string
@@ -4775,6 +4845,8 @@ export namespace Prisma {
     id?: string
     name: string
     notes?: string | null
+    maxQuantity?: number | null
+    isArchived?: boolean
     sortOrder?: number
     menu: MenuCreateNestedOneWithoutItemsInput
     selections?: SelectionCreateNestedManyWithoutMenuItemInput
@@ -4785,6 +4857,8 @@ export namespace Prisma {
     menuId: string
     name: string
     notes?: string | null
+    maxQuantity?: number | null
+    isArchived?: boolean
     sortOrder?: number
     selections?: SelectionUncheckedCreateNestedManyWithoutMenuItemInput
   }
@@ -4793,6 +4867,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    maxQuantity?: NullableIntFieldUpdateOperationsInput | number | null
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     menu?: MenuUpdateOneRequiredWithoutItemsNestedInput
     selections?: SelectionUpdateManyWithoutMenuItemNestedInput
@@ -4803,6 +4879,8 @@ export namespace Prisma {
     menuId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    maxQuantity?: NullableIntFieldUpdateOperationsInput | number | null
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     selections?: SelectionUncheckedUpdateManyWithoutMenuItemNestedInput
   }
@@ -4812,6 +4890,8 @@ export namespace Prisma {
     menuId: string
     name: string
     notes?: string | null
+    maxQuantity?: number | null
+    isArchived?: boolean
     sortOrder?: number
   }
 
@@ -4819,6 +4899,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    maxQuantity?: NullableIntFieldUpdateOperationsInput | number | null
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
   }
 
@@ -4827,12 +4909,15 @@ export namespace Prisma {
     menuId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    maxQuantity?: NullableIntFieldUpdateOperationsInput | number | null
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
   }
 
   export type SelectionCreateInput = {
     id?: string
     personName: string
+    note?: string | null
     isPaid?: boolean
     paidAt?: Date | string | null
     createdAt?: Date | string
@@ -4843,6 +4928,7 @@ export namespace Prisma {
     id?: string
     menuItemId: string
     personName: string
+    note?: string | null
     isPaid?: boolean
     paidAt?: Date | string | null
     createdAt?: Date | string
@@ -4851,6 +4937,7 @@ export namespace Prisma {
   export type SelectionUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     personName?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     isPaid?: BoolFieldUpdateOperationsInput | boolean
     paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -4861,6 +4948,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     menuItemId?: StringFieldUpdateOperationsInput | string
     personName?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     isPaid?: BoolFieldUpdateOperationsInput | boolean
     paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -4870,6 +4958,7 @@ export namespace Prisma {
     id?: string
     menuItemId: string
     personName: string
+    note?: string | null
     isPaid?: boolean
     paidAt?: Date | string | null
     createdAt?: Date | string
@@ -4878,6 +4967,7 @@ export namespace Prisma {
   export type SelectionUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     personName?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     isPaid?: BoolFieldUpdateOperationsInput | boolean
     paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -4887,6 +4977,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     menuItemId?: StringFieldUpdateOperationsInput | string
     personName?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     isPaid?: BoolFieldUpdateOperationsInput | boolean
     paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -5015,6 +5106,17 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -5051,10 +5153,13 @@ export namespace Prisma {
     menuId?: SortOrder
     name?: SortOrder
     notes?: SortOrder
+    maxQuantity?: SortOrder
+    isArchived?: SortOrder
     sortOrder?: SortOrder
   }
 
   export type MenuItemAvgOrderByAggregateInput = {
+    maxQuantity?: SortOrder
     sortOrder?: SortOrder
   }
 
@@ -5063,6 +5168,8 @@ export namespace Prisma {
     menuId?: SortOrder
     name?: SortOrder
     notes?: SortOrder
+    maxQuantity?: SortOrder
+    isArchived?: SortOrder
     sortOrder?: SortOrder
   }
 
@@ -5071,10 +5178,13 @@ export namespace Prisma {
     menuId?: SortOrder
     name?: SortOrder
     notes?: SortOrder
+    maxQuantity?: SortOrder
+    isArchived?: SortOrder
     sortOrder?: SortOrder
   }
 
   export type MenuItemSumOrderByAggregateInput = {
+    maxQuantity?: SortOrder
     sortOrder?: SortOrder
   }
 
@@ -5094,6 +5204,22 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
@@ -5132,6 +5258,7 @@ export namespace Prisma {
     id?: SortOrder
     menuItemId?: SortOrder
     personName?: SortOrder
+    note?: SortOrder
     isPaid?: SortOrder
     paidAt?: SortOrder
     createdAt?: SortOrder
@@ -5141,6 +5268,7 @@ export namespace Prisma {
     id?: SortOrder
     menuItemId?: SortOrder
     personName?: SortOrder
+    note?: SortOrder
     isPaid?: SortOrder
     paidAt?: SortOrder
     createdAt?: SortOrder
@@ -5150,6 +5278,7 @@ export namespace Prisma {
     id?: SortOrder
     menuItemId?: SortOrder
     personName?: SortOrder
+    note?: SortOrder
     isPaid?: SortOrder
     paidAt?: SortOrder
     createdAt?: SortOrder
@@ -5245,6 +5374,14 @@ export namespace Prisma {
 
   export type NullableStringFieldUpdateOperationsInput = {
     set?: string | null
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -5403,6 +5540,17 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -5420,7 +5568,7 @@ export namespace Prisma {
     _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
-  export type NestedIntNullableFilter<$PrismaModel = never> = {
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
     in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
     notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
@@ -5428,7 +5576,23 @@ export namespace Prisma {
     lte?: number | IntFieldRefInput<$PrismaModel>
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
@@ -5487,6 +5651,8 @@ export namespace Prisma {
     id?: string
     name: string
     notes?: string | null
+    maxQuantity?: number | null
+    isArchived?: boolean
     sortOrder?: number
     selections?: SelectionCreateNestedManyWithoutMenuItemInput
   }
@@ -5495,6 +5661,8 @@ export namespace Prisma {
     id?: string
     name: string
     notes?: string | null
+    maxQuantity?: number | null
+    isArchived?: boolean
     sortOrder?: number
     selections?: SelectionUncheckedCreateNestedManyWithoutMenuItemInput
   }
@@ -5533,6 +5701,8 @@ export namespace Prisma {
     menuId?: StringFilter<"MenuItem"> | string
     name?: StringFilter<"MenuItem"> | string
     notes?: StringNullableFilter<"MenuItem"> | string | null
+    maxQuantity?: IntNullableFilter<"MenuItem"> | number | null
+    isArchived?: BoolFilter<"MenuItem"> | boolean
     sortOrder?: IntFilter<"MenuItem"> | number
   }
 
@@ -5562,6 +5732,7 @@ export namespace Prisma {
   export type SelectionCreateWithoutMenuItemInput = {
     id?: string
     personName: string
+    note?: string | null
     isPaid?: boolean
     paidAt?: Date | string | null
     createdAt?: Date | string
@@ -5570,6 +5741,7 @@ export namespace Prisma {
   export type SelectionUncheckedCreateWithoutMenuItemInput = {
     id?: string
     personName: string
+    note?: string | null
     isPaid?: boolean
     paidAt?: Date | string | null
     createdAt?: Date | string
@@ -5637,6 +5809,7 @@ export namespace Prisma {
     id?: StringFilter<"Selection"> | string
     menuItemId?: StringFilter<"Selection"> | string
     personName?: StringFilter<"Selection"> | string
+    note?: StringNullableFilter<"Selection"> | string | null
     isPaid?: BoolFilter<"Selection"> | boolean
     paidAt?: DateTimeNullableFilter<"Selection"> | Date | string | null
     createdAt?: DateTimeFilter<"Selection"> | Date | string
@@ -5646,6 +5819,8 @@ export namespace Prisma {
     id?: string
     name: string
     notes?: string | null
+    maxQuantity?: number | null
+    isArchived?: boolean
     sortOrder?: number
     menu: MenuCreateNestedOneWithoutItemsInput
   }
@@ -5655,6 +5830,8 @@ export namespace Prisma {
     menuId: string
     name: string
     notes?: string | null
+    maxQuantity?: number | null
+    isArchived?: boolean
     sortOrder?: number
   }
 
@@ -5678,6 +5855,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    maxQuantity?: NullableIntFieldUpdateOperationsInput | number | null
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     menu?: MenuUpdateOneRequiredWithoutItemsNestedInput
   }
@@ -5687,6 +5866,8 @@ export namespace Prisma {
     menuId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    maxQuantity?: NullableIntFieldUpdateOperationsInput | number | null
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
   }
 
@@ -5694,6 +5875,8 @@ export namespace Prisma {
     id?: string
     name: string
     notes?: string | null
+    maxQuantity?: number | null
+    isArchived?: boolean
     sortOrder?: number
   }
 
@@ -5701,6 +5884,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    maxQuantity?: NullableIntFieldUpdateOperationsInput | number | null
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     selections?: SelectionUpdateManyWithoutMenuItemNestedInput
   }
@@ -5709,6 +5894,8 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    maxQuantity?: NullableIntFieldUpdateOperationsInput | number | null
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     selections?: SelectionUncheckedUpdateManyWithoutMenuItemNestedInput
   }
@@ -5717,12 +5904,15 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
+    maxQuantity?: NullableIntFieldUpdateOperationsInput | number | null
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
   }
 
   export type SelectionCreateManyMenuItemInput = {
     id?: string
     personName: string
+    note?: string | null
     isPaid?: boolean
     paidAt?: Date | string | null
     createdAt?: Date | string
@@ -5731,6 +5921,7 @@ export namespace Prisma {
   export type SelectionUpdateWithoutMenuItemInput = {
     id?: StringFieldUpdateOperationsInput | string
     personName?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     isPaid?: BoolFieldUpdateOperationsInput | boolean
     paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -5739,6 +5930,7 @@ export namespace Prisma {
   export type SelectionUncheckedUpdateWithoutMenuItemInput = {
     id?: StringFieldUpdateOperationsInput | string
     personName?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     isPaid?: BoolFieldUpdateOperationsInput | boolean
     paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -5747,6 +5939,7 @@ export namespace Prisma {
   export type SelectionUncheckedUpdateManyWithoutMenuItemInput = {
     id?: StringFieldUpdateOperationsInput | string
     personName?: StringFieldUpdateOperationsInput | string
+    note?: NullableStringFieldUpdateOperationsInput | string | null
     isPaid?: BoolFieldUpdateOperationsInput | boolean
     paidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

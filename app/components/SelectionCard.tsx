@@ -92,50 +92,81 @@ export default function SelectionCard({
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
                     <Chip
-                      label={`${item.selections.length}`}
+                      label={
+                        item.maxQuantity !== null
+                          ? `${item.selections.length}/${item.maxQuantity}`
+                          : `${item.selections.length}`
+                      }
                       size="small"
-                      color="primary"
+                      color={
+                        item.maxQuantity !== null &&
+                        item.selections.length >= item.maxQuantity
+                          ? 'error'
+                          : 'primary'
+                      }
                       sx={{ minWidth: 28 }}
                     />
                     <Box>
                       <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
                         {item.name}
+                        {item.isArchived && (
+                          <Typography
+                            component="span"
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{ ml: 1 }}
+                          >
+                            (đã gỡ khỏi menu)
+                          </Typography>
+                        )}
                       </Typography>
                       {(() => {
                         const uniquePeople = Array.from(
-                          new Set(item.selections.map((s) => s.personName))
+                          new Set(
+                            item.selections.map(
+                              (s) =>
+                                `${s.personName}${s.note?.trim() ? ` (${s.note.trim()})` : ""}`,
+                            ),
+                          ),
                         );
                         return (
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
                             <Box sx={{ display: 'flex', gap: -0.5 }}>
-                              {uniquePeople.slice(0, 3).map((personName) => (
-                                <Tooltip
-                                  key={personName}
-                                  title={
-                                    personName === currentPersonName
-                                      ? `${personName} (bạn)`
-                                      : personName
-                                  }
-                                >
-                                  <Avatar
-                                    sx={{
-                                      width: 20,
-                                      height: 20,
-                                      fontSize: '0.65rem',
-                                      bgcolor:
-                                        personName === currentPersonName
-                                          ? 'primary.main'
-                                          : 'secondary.main',
-                                      border: '2px solid',
-                                      borderColor: 'background.paper',
-                                      ml: -0.5,
-                                      '&:first-of-type': { ml: 0 },
-                                    }}
+                              {uniquePeople.slice(0, 3).map((personLabel) => {
+                                const personName = personLabel.replace(/\s*\(.*\)$/, '');
+                                const noteMatch = personLabel.match(/\((.*)\)$/);
+                                const tooltipText = noteMatch
+                                  ? `${personName} (${noteMatch[1]})`
+                                  : personName;
+                                return (
+                                  <Tooltip
+                                    key={personLabel}
+                                    title={
+                                      personName === currentPersonName
+                                        ? `${tooltipText} (bạn)`
+                                        : tooltipText
+                                    }
                                   >
-                                    {personName.charAt(0).toUpperCase()}
-                                  </Avatar>
-                                </Tooltip>
-                              ))}
+                                    <Avatar
+                                      sx={{
+                                        width: 20,
+                                        height: 20,
+                                        fontSize: '0.65rem',
+                                        bgcolor:
+                                          personName === currentPersonName
+                                            ? 'primary.main'
+                                            : 'secondary.main',
+                                        border: '2px solid',
+                                        borderColor: 'background.paper',
+                                        ml: -0.5,
+                                        '&:first-of-type': { ml: 0 },
+                                      }}
+                                    >
+                                      {personName.charAt(0).toUpperCase()}
+                                    </Avatar>
+                                  </Tooltip>
+                                );
+                              })}
                             </Box>
                             {uniquePeople.length > 3 && (
                               <Typography variant="caption" color="text.secondary">
